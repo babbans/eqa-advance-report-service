@@ -1,7 +1,7 @@
 server:
   port : 9095
   servlet:
-    context-path: /eqa-apr-summary-service
+    context-path: /eqa-advance-report-service
 #  ssl:
 #    key-alias: datadimens
 #    key-store-password: 123456
