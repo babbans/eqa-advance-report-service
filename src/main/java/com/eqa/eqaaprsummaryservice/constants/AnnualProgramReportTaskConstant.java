@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 public enum AnnualProgramReportTaskConstant {
 
 	TECHNICAL_ERROR("EQA-APR-TASK.0000", "Technical error occurred!", HttpStatus.INTERNAL_SERVER_ERROR),
+
+	APR_TASK_UNAUTHORIZED_ACCESS("EQA-APR-TASK.0003", "You are unAuthorized to access this endpoint.",
+			HttpStatus.FORBIDDEN),
 	APR_TASK_CREATION_FAILED("EQA-APR-TASK.0001", "Error occurred while saving Annual Program Report's Task(s).",
 			HttpStatus.INTERNAL_SERVER_ERROR),
 	APR_TASK_UPDATE_FAILED("EQA-APR-TASK.0002", "Error occurred while updating Annual Program Report's Task.",

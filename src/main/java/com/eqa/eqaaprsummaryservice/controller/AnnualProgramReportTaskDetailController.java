@@ -1,55 +1,58 @@
 package com.eqa.eqaaprsummaryservice.controller;
 
 import com.eqa.eqaaprsummaryservice.constants.CommonConstants;
+import com.eqa.eqaaprsummaryservice.dto.AnnualProgramReportTaskDetailDTO;
+import com.eqa.eqaaprsummaryservice.dto.ResponseObject;
 import com.eqa.eqaaprsummaryservice.entity.AnnualProgramReportTaskDetail;
+import com.eqa.eqaaprsummaryservice.exception.CustomException;
 import com.eqa.eqaaprsummaryservice.service.AnnualProgramReportTaskDetailService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(CommonConstants.API_BASE_PATH + CommonConstants.TASK_DETAIL)
+@Slf4j
+@Validated
 public class AnnualProgramReportTaskDetailController {
 
     @Autowired
-    private AnnualProgramReportTaskDetailService service;
-
+    private AnnualProgramReportTaskDetailService taskDetailService;
+    
     @GetMapping
-    public List<AnnualProgramReportTaskDetail> getAllTaskDetails() {
-        return service.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<AnnualProgramReportTaskDetail> getTaskDetailById(@PathVariable Long id) {
-        return service.findById(id)
-                      .map(ResponseEntity::ok)
-                      .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ResponseObject> getAllTaskDetails() {
+        log.info("getAllTaskDetail() : Start");
+        return taskDetailService.findAll();
     }
 
     @PostMapping
-    public AnnualProgramReportTaskDetail createTaskDetail(@RequestBody AnnualProgramReportTaskDetail taskDetail) {
-        return service.save(taskDetail);
+    public ResponseEntity<ResponseObject> createTaskDetail(@Validated @RequestBody AnnualProgramReportTaskDetailDTO dto) {
+        log.info("createTaskDetail() : Start");
+        log.info("TaskDetail data {}", dto);
+        return taskDetailService.save(dto);
     }
-
     @PutMapping("/{id}")
-    public ResponseEntity<AnnualProgramReportTaskDetail> updateTaskDetail(@PathVariable Long id, @RequestBody AnnualProgramReportTaskDetail taskDetail) {
-        return service.findById(id)
-                      .map(existingTaskDetail -> {
-                          taskDetail.setId(existingTaskDetail.getId());
-                          return ResponseEntity.ok(service.save(taskDetail));
-                      })
-                      .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ResponseObject> updateTaskDetail(@Validated @RequestBody AnnualProgramReportTaskDetail taskDetail,
+                                                        @PathVariable("id") long id) throws CustomException {
+        log.info("updateTaskDetail() : Start");
+        log.info("TaskDetail id {} and Data {}", id, taskDetail);
+        return taskDetailService.updateTaskDetail(taskDetail, id);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTaskDetail(@PathVariable Long id) {
-        if (service.findById(id).isPresent()) {
-            service.deleteById(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping
+    public ResponseEntity<ResponseObject> deleteTaskDetail(@RequestParam List<Long> ids)
+            throws CustomException {
+        log.info("deleteTaskDetail() : Start, ids are {}", ids);
+        return taskDetailService.deleteTaskDetail(ids);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<ResponseObject> getTaskDetailById(@PathVariable Long id) throws CustomException{
+        log.info("getTaskDetailById() : Start, id is {}", id);
+        return taskDetailService.findById(id);
     }
 }

@@ -1,4 +1,3 @@
-create database eqa-apr-report-db;
 use eqa-apr-report-db;
 CREATE TABLE annual_program_report_setting (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -26,5 +25,4 @@ CREATE TABLE annual_program_report_task_detail (
     creation_datetime DATETIME,
     update_by VARCHAR(100),
     update_datetime DATETIME,
-    FOREIGN KEY (section_id) REFERENCES annual_program_report_setting(id)
 );

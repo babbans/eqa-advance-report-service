@@ -17,7 +17,7 @@ public class AnnualProgramReportTaskDetail implements Auditable {
     private Long id;
 
     @Column(name = "program_id")
-    private Long programId;
+    private String programId;
 
     @Column(name = "department_id", length = 100)
     private String departmentId;
@@ -31,9 +31,8 @@ public class AnnualProgramReportTaskDetail implements Auditable {
     @Column(name = "responsible", length = 100)
     private String responsible;
 
-    @ManyToOne
-    @JoinColumn(name = "section_id", nullable = false)
-    private AnnualProgramReportSetting section;
+    @Column(name = "section_id", nullable = false)
+    private Long section;
 
     @Column(name = "active", nullable = false)
     private boolean active;
