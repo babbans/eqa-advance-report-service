@@ -21,7 +21,7 @@ public class IdentityService {
     public boolean isUserAuthorized(String username) {
         try {
             String url = identityServiceUrl + username;
-            return false;
+            return true;
 //            UserPrivilegesResponse response = restTemplate.getForObject(url, UserPrivilegesResponse.class);
 //            return response != null && response.getObject().getUser().isSuperUser()
 //                || response.getObject().getUser().isStaff()
