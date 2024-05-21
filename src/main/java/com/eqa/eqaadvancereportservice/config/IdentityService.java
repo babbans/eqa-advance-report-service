@@ -1,12 +1,19 @@
 package com.eqa.eqaadvancereportservice.config;
 
+import com.eqa.eqaadvancereportservice.dto.IdentityServiceResponse;
+import com.eqa.eqaadvancereportservice.dto.UserPrivileges;
+import com.eqa.eqaadvancereportservice.exception.UnauthorizedException;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@Slf4j
 public class IdentityService {
 
     @Value("${identity.service.url}")
@@ -18,48 +25,36 @@ public class IdentityService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean isUserAuthorized(String username) {
+    public UserPrivileges getUserPrivileges(String username, String apiKey) {
         try {
             String url = identityServiceUrl + username;
-            return true;
-//            UserPrivilegesResponse response = restTemplate.getForObject(url, UserPrivilegesResponse.class);
-//            return response != null && response.getObject().getUser().isSuperUser()
-//                || response.getObject().getUser().isStaff()
-//                || response.getObject().getUser().isDepartmentCoordinator();
-        } catch (HttpClientErrorException e) {
-            return false;
-        }
-    }
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("x-api-key", apiKey);
 
-    @Data
-    public static class UserPrivilegesResponse {
-        private String status;
-        private String message;
-        private UserObject object;
-        @Data
-        public static class UserObject {
-            private User user;
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            @Data
-            public static class User {
-                private boolean superUser;
-                private boolean staff;
-                private boolean departmentCoordinator;
+            ResponseEntity<IdentityServiceResponse> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, IdentityServiceResponse.class);
+            log.info("Response from from privilege api is {}", response);
+            HttpStatusCode statusCode = response.getStatusCode();
 
-                // Getters and setters
-
-                public boolean isSuperUser() {
-                    return superUser;
+            if (statusCode == HttpStatus.OK) {
+                IdentityServiceResponse responseBody = response.getBody();
+                if(responseBody != null && "success".equalsIgnoreCase(responseBody.getStatus())){
+                    UserPrivileges user = responseBody.getObj();
+                    log.info("User is {}", user);
+                    return user;
+                }  else {
+                    log.info("Didn't received success status from privilege api while statusCode is 200 {}", responseBody);
                 }
-
-                public boolean isStaff() {
-                    return staff;
-                }
-
-                public boolean isDepartmentCoordinator() {
-                    return departmentCoordinator;
-                }
+            } else {
+                log.info("Didn't received success status from privilege api {}", response);
             }
+            return null;
+        } catch (HttpClientErrorException e) {
+            log.error("Error occurred while checking user privilege");
+            return null;
         }
     }
+
 }

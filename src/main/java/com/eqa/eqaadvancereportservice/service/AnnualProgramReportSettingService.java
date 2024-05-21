@@ -1,9 +1,11 @@
 package com.eqa.eqaadvancereportservice.service;
 
 import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportSettingConstant;
+import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportTaskConstant;
 import com.eqa.eqaadvancereportservice.dto.ResponseObject;
 import com.eqa.eqaadvancereportservice.entity.AnnualProgramReportSetting;
 import com.eqa.eqaadvancereportservice.exception.CustomException;
+import com.eqa.eqaadvancereportservice.exception.UnauthorizedException;
 import com.eqa.eqaadvancereportservice.repository.AnnualProgramReportSettingRepository;
 import com.eqa.eqaadvancereportservice.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,9 @@ public class AnnualProgramReportSettingService {
                     String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_CREATE_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_CREATE_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
+            if(ex instanceof UnauthorizedException){
+                throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_UNAUTHORIZED_ACCESS);
+            }
             log.error("Error while saving AnnualProgramReportSetting {}", ex.getMessage());
             throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_CREATION_FAILED);
         }
@@ -68,6 +73,9 @@ public class AnnualProgramReportSettingService {
                     String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_UPDATE_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_UPDATE_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
+            if(ex instanceof UnauthorizedException){
+                throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_UNAUTHORIZED_ACCESS);
+            }
             log.error("Error while updating Setting {}", ex.getMessage());
             throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_UPDATE_FAILED);
         }
@@ -77,10 +85,10 @@ public class AnnualProgramReportSettingService {
         AnnualProgramReportSetting existingReportSetting = getExistingSetting(id);
         try {
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportSettingConstant.APR_SETTING_GET_SUCCESS.getBusinessMsg()),
-                    AnnualProgramReportSettingConstant.APR_SETTING_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
+                    AnnualProgramReportSettingConstant.APR_SETTING_GET_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), existingReportSetting,
-                    String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_CREATE_SUCCESS.getHttpStatus().value()), null,
-                    new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_CREATE_SUCCESS.getHttpStatus());
+                    String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_GET_SUCCESS.getHttpStatus().value()), null,
+                    new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_GET_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
             log.error("Error while fetching AnnualProgramReportSetting {}", ex.getMessage());
             throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_NOT_FOUND);
@@ -97,6 +105,9 @@ public class AnnualProgramReportSettingService {
                     String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_DELETE_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_DELETE_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
+            if(ex instanceof UnauthorizedException){
+                throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_UNAUTHORIZED_ACCESS);
+            }
             log.error("Error while deleting AnnualProgramReportSetting {}", ex.getMessage());
             throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_DELETION_FAILED);
         }

@@ -23,9 +23,11 @@ public class CustomAuthenticationFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String username = httpRequest.getHeader("username");
-        if (username != null) {
+        String apiKey = httpRequest.getHeader("x-api-key");
+        if (username != null && apiKey != null) {
             User user = new User(username, "", Collections.emptyList());
-            PreAuthenticatedAuthenticationToken authentication = new PreAuthenticatedAuthenticationToken(user, "", Collections.emptyList());
+            PreAuthenticatedAuthenticationToken authentication =
+                    new PreAuthenticatedAuthenticationToken(user, apiKey, Collections.emptyList());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         chain.doFilter(request, response);
