@@ -29,17 +29,17 @@ public class AnnualProgramReportSettingController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseObject> createSetting(@RequestHeader("username") String username, @Validated @RequestBody List<AnnualProgramReportSetting> settings) {
+    public ResponseEntity<ResponseObject> createSetting(@Validated @RequestBody List<AnnualProgramReportSetting> settings) {
         log.info("createSetting() : Start");
         log.info("Setting data {}", settings);
         return settingService.save(settings);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateSetting(@RequestHeader("username") String username,@Validated @RequestBody AnnualProgramReportSetting setting,
+    public ResponseEntity<ResponseObject> updateSetting(@Validated @RequestBody AnnualProgramReportSetting setting,
                                                        @PathVariable("id") long id) throws CustomException {
         log.info("updateSetting() : Start");
         log.info("Setting id {} and Data {}", id, setting);
-        return settingService.updateSetting(setting, id, username);
+        return settingService.updateSetting(setting, id);
     }
 
     @DeleteMapping

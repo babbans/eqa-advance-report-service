@@ -60,11 +60,10 @@ public class AnnualProgramReportSettingService {
             throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_CREATION_FAILED);
         }
     }
-    public ResponseEntity<ResponseObject> updateSetting(AnnualProgramReportSetting setting, long id, String username) throws CustomException {
+    public ResponseEntity<ResponseObject> updateSetting(AnnualProgramReportSetting setting, long id) throws CustomException {
         AnnualProgramReportSetting existingSetting = getExistingSetting(id);
         try {
             modelMapper.map(setting, existingSetting);
-//            existingSetting.setUpdateBy(username);
             AnnualProgramReportSetting updatedSetting = settingRepository.save(existingSetting);
             log.info("Report Setting updated successfully");
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportSettingConstant.APR_SETTING_UPDATE_SUCCESS.getBusinessMsg()),

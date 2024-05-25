@@ -24,6 +24,8 @@ public enum AnnualProgramReportTaskConstant {
 	APR_TASK_DELETE_SUCCESS("EQA-APR-TASK.2003", "Annual Program Report's Task deleted successfully.", HttpStatus.OK),
 	APR_TASK_LIST_SUCCESS("EQA-APR-TASK.2004", "Annual Program Report's Task list fetched successfully.", HttpStatus.OK),
 	APR_TASK_LIST_FAILED("EQA-APR-TASK.2005", "Error while fetching Annual Program Report's Task list.", HttpStatus.OK),
+	APR_REPORTS_LIST_SUCCESS("EQA-APR-REPORT.2004", "Annual Program Report's  list fetched successfully.", HttpStatus.OK),
+	APR_REPORTS_LIST_FAILED("EQA-APR-REPORT.2005", "Error while fetching Annual Program Report's list.", HttpStatus.OK),
 
 	APR_TASK_GET_FAILED("EQA-APR-TASK.2006", "Error while fetching Annual Program Report's Task.", HttpStatus.OK),
 	APR_TASK_GET_SUCCESS("EQA-APR-TASK.2007", "Annual Program Report's Task fetched successfully.", HttpStatus.OK);

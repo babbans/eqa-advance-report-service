@@ -44,6 +44,12 @@ public class ExceptionAdviceHandler {
 			businessMsg = exception.getTaskConstant().getBusinessMsg();
 			httpStatus = exception.getTaskConstant().getHttpStatus();
 			STATUS = exception.getTaskConstant().getHttpStatus().name();
+		}  else if (Objects.nonNull(exception.getDataConstant())) {
+			errorMsgList.add(exception.getDataConstant().getBusinessMsg());
+			statusCode = exception.getDataConstant().getHttpStatus().value();
+			businessMsg = exception.getDataConstant().getBusinessMsg();
+			httpStatus = exception.getDataConstant().getHttpStatus();
+			STATUS = exception.getDataConstant().getHttpStatus().name();
 		}
 		return CommonUtils.buildResponseEntity(errorMsgList, STATUS, String.valueOf(Math.round(Math.random() * 100)),
 				null, statusCode + "", businessMsg, new HttpHeaders(), httpStatus);

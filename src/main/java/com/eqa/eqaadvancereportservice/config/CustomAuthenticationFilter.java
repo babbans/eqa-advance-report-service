@@ -1,5 +1,6 @@
 package com.eqa.eqaadvancereportservice.config;
 
+import com.eqa.eqaadvancereportservice.constants.CommonConstants;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -23,7 +24,7 @@ public class CustomAuthenticationFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String username = httpRequest.getHeader("username");
-        String apiKey = httpRequest.getHeader("x-api-key");
+        String apiKey = httpRequest.getHeader(CommonConstants.X_API_KEY);
         if (username != null && apiKey != null) {
             User user = new User(username, "", Collections.emptyList());
             PreAuthenticatedAuthenticationToken authentication =

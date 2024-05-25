@@ -1,5 +1,6 @@
 package com.eqa.eqaadvancereportservice.config;
 
+import com.eqa.eqaadvancereportservice.constants.CommonConstants;
 import com.eqa.eqaadvancereportservice.dto.IdentityServiceResponse;
 import com.eqa.eqaadvancereportservice.dto.UserPrivileges;
 import com.eqa.eqaadvancereportservice.exception.UnauthorizedException;
@@ -29,7 +30,7 @@ public class IdentityService {
         try {
             String url = identityServiceUrl + username;
             HttpHeaders headers = new HttpHeaders();
-            headers.set("x-api-key", apiKey);
+            headers.set(CommonConstants.X_API_KEY, apiKey);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
 

@@ -1,5 +1,6 @@
 package com.eqa.eqaadvancereportservice.exception;
 
+import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportDataConstant;
 import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportSettingConstant;
 import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportTaskConstant;
 import lombok.Data;
@@ -15,6 +16,13 @@ public class CustomException extends RuntimeException {
 	private AnnualProgramReportSettingConstant settingConstant;
 	
 	private AnnualProgramReportTaskConstant taskConstant;
+
+	private AnnualProgramReportDataConstant dataConstant;
+
+	public CustomException(AnnualProgramReportDataConstant dataConstant) {
+		super(dataConstant.getBusinessMsg());
+		this.dataConstant = dataConstant;
+	}
 
 	public CustomException(AnnualProgramReportSettingConstant settingConstant) {
 		super(settingConstant.getBusinessMsg());

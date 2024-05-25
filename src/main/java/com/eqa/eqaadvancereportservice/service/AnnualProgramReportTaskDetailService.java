@@ -4,9 +4,11 @@ import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportTaskConstant
 import com.eqa.eqaadvancereportservice.dto.AnnualProgramReportTaskDetailDTO;
 import com.eqa.eqaadvancereportservice.dto.ResponseObject;
 import com.eqa.eqaadvancereportservice.entity.AnnualProgramReportTaskDetail;
+import com.eqa.eqaadvancereportservice.entity.ReportMaster;
 import com.eqa.eqaadvancereportservice.exception.CustomException;
 import com.eqa.eqaadvancereportservice.exception.UnauthorizedException;
 import com.eqa.eqaadvancereportservice.repository.AnnualProgramReportTaskDetailRepository;
+import com.eqa.eqaadvancereportservice.repository.ReportMasterRepository;
 import com.eqa.eqaadvancereportservice.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,6 +27,9 @@ public class AnnualProgramReportTaskDetailService {
 
     @Autowired
     private AnnualProgramReportTaskDetailRepository taskDetailRepository;
+
+    @Autowired
+    ReportMasterRepository reportMasterRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -56,11 +61,20 @@ public class AnnualProgramReportTaskDetailService {
                 taskDetail.setResponsible(task.getResponsible());
                 taskDetail.setSection(task.getSectionId());
                 taskDetail.setActive(task.isActive());
-                taskDetail.setCreationDatetime(LocalDateTime.now());
                 taskDetails.add(taskDetail);
             }
             List<AnnualProgramReportTaskDetail> savedTaskDetails = taskDetailRepository.saveAll(taskDetails);
             log.info("AnnualProgramReportTaskDetail saved successfully");
+
+            ReportMaster reportMaster = new ReportMaster();
+            reportMaster.setProgramId(dto.getProgramId());
+            reportMaster.setDepartmentId(dto.getDepartmentId());
+            reportMaster.setCollegeId(dto.getCollegeId());
+            reportMaster.setAcademicYear(dto.getAcademicYear());
+
+            ReportMaster savedReportMaster = reportMasterRepository.save(reportMaster);
+
+            log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
 
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
