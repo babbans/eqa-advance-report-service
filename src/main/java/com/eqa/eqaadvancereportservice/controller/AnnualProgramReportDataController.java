@@ -20,17 +20,22 @@ import java.util.List;
 public class AnnualProgramReportDataController {
 
     @Autowired
-    private AnnualProgramReportDataService dataService;
+    private AnnualProgramReportDataService reportDataService;
 
     @PostMapping
     public ResponseEntity<ResponseObject> createData(@Validated @RequestBody ReportDTO dto) {
         log.info("createData() : Start");
         log.info("Data is {}", dto);
-        return dataService.saveOrUpdateReport(dto);
+        return reportDataService.saveOrUpdateReport(dto);
     }
     @GetMapping("{reportId}")
-    public ResponseEntity<ResponseObject> getReportById(@PathVariable String reportId) throws CustomException{
+    public ResponseEntity<ResponseObject> getReportDataById(@PathVariable String reportId) throws CustomException{
         log.info("getDataById() : Start, id is {}", reportId);
-        return dataService.getReportById(reportId);
+        return reportDataService.getReportById(reportId);
+    }
+    @DeleteMapping("/{reportId}")
+    public ResponseEntity<ResponseObject> deleteReportData(@PathVariable String reportId) {
+        log.info("deleteReportData() : Start, id is {}", reportId);
+        return reportDataService.deleteReportById(reportId);
     }
 }

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "annual_program_report_section_bcp")
+@Table(name = "annual_program_report_section_b_cp")
 @EntityListeners(AuditEntityListener.class)
 public class APRSummarySectionBCP implements Auditable {
 

@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface APRSummarySectionBCPRepository extends JpaRepository<APRSummarySectionBCP, Long> {
     List<APRSummarySectionBCP> findByReportId(String reportId);
+
+    void deleteByReportId(String reportId);
     // Custom query methods can be defined here if needed
 }

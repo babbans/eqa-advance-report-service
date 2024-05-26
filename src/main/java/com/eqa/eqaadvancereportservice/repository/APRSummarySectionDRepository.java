@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface APRSummarySectionDRepository extends JpaRepository<APRSummarySectionD, Long> {
     APRSummarySectionD findByReportId(String reportId);
+
+    void deleteByReportId(String reportId);
 }

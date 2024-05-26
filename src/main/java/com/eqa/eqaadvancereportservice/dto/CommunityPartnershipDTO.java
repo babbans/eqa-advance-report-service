@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CommunityPartnershipDTO {
+    private Long id;
     private String activity;
     private String description;
     private String comment;

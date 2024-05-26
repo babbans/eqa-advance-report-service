@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "annual_program_report_section_bsepq")
+@Table(name = "annual_program_report_section_b_sepq")
 @EntityListeners(AuditEntityListener.class)
 public class APRSummarySectionBSEPQ implements Auditable {
 

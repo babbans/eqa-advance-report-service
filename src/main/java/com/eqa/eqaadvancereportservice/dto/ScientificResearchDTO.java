@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ScientificResearchDTO {
+    private Long id;
     private Integer publishedScientificResearch;
     private Integer currentResearchProjects;
     private Integer conferencesOrganizedByProgram;

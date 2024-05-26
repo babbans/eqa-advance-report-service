@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SectionCDTO {
+    private Long id;
     private Integer kpiId;
     private Double actualValue;
     private Double internalBenchmark;

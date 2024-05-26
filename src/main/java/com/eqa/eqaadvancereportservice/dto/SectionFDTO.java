@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SectionFDTO {
+    private Long id;
     private String councilCommitteeId;
     private Integer referenceNo;
     private String approvalDate;

@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface APRSummarySectionBSEPQRepository extends JpaRepository<APRSummarySectionBSEPQ, Long> {
     APRSummarySectionBSEPQ findByReportId(String reportId);
+
+    void deleteByReportId(String reportId);
 }

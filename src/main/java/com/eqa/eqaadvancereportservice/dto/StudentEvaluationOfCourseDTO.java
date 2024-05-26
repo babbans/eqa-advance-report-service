@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class StudentEvaluationOfCourseDTO {
+    private Long id;
     private String courseCode;
     private Integer noOfStudentEvaluatedCourse;
     private Double percentageOfParticipant;

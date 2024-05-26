@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface APRSummarySectionCKPIPERepository extends JpaRepository<APRSummarySectionCKPIPE, Long> {
     List<APRSummarySectionCKPIPE> findByReportId(String reportId);
+
+    void deleteByReportId(String reportId);
 }

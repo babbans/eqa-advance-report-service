@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class StudentEvaluationOfProgramQualityDTO {
+    private Long id;
     private String evaluationDate;
     private Integer noOfParticipants;
     private String studentFeedback;

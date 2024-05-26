@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Data
 public class SectionBDTO {
+    private Long id;
     private String strength;
     private String challenges;
     private List<StudentEvaluationOfCourseDTO> studentEvaluationOfCourse = new ArrayList<>();;

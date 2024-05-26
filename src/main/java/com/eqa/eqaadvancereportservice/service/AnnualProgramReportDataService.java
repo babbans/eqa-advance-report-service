@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -57,6 +58,9 @@ public class AnnualProgramReportDataService {
     @Autowired
     private APRSectionFRepository sectionFRepository;
 
+    @Autowired
+    private APRSummarySectionBRepository sectionBRepository;
+
     @Transactional
     public ResponseEntity<ResponseObject> saveOrUpdateReport(ReportDTO reportDTO) {
         try {
@@ -65,6 +69,7 @@ public class AnnualProgramReportDataService {
             if (reportDTO.getSectionA() != null) {
                 log.info("Saving section A");
                 APRSummarySectionA sectionA = new APRSummarySectionA();
+                sectionA.setId(reportDTO.getSectionA().getId());
                 sectionA.setReportId(reportDTO.getReportId());
                 sectionA.setNsep(reportDTO.getSectionA().getNsep());
                 sectionA.setNswsp(reportDTO.getSectionA().getNswsp());
@@ -74,11 +79,19 @@ public class AnnualProgramReportDataService {
 
             if (reportDTO.getSectionB() != null) {
                 log.info("Saving section B");
+                // Save or update the section B summary
+                APRSummarySectionB sectionBSummary = new APRSummarySectionB();
+                sectionBSummary.setId(reportDTO.getSectionB().getId());
+                sectionBSummary.setReportId(reportDTO.getReportId());
+                sectionBSummary.setStrength(reportDTO.getSectionB().getStrength());
+                sectionBSummary.setChallenges(reportDTO.getSectionB().getChallenges());
+                sectionBRepository.save(sectionBSummary);
 
                 if (reportDTO.getSectionB().getStudentEvaluationOfCourse() != null) {
                     for (StudentEvaluationOfCourseDTO secDTO : reportDTO.getSectionB().getStudentEvaluationOfCourse()) {
                         log.info("Saving student evaluation of course for course code: {}", secDTO.getCourseCode());
                         APRSummarySectionBSEC sectionBSEC = new APRSummarySectionBSEC();
+                        sectionBSEC.setId(secDTO.getId());
                         sectionBSEC.setReportId(reportDTO.getReportId());
                         sectionBSEC.setCourseCode(secDTO.getCourseCode());
                         sectionBSEC.setNswec(secDTO.getNoOfStudentEvaluatedCourse());
@@ -92,6 +105,7 @@ public class AnnualProgramReportDataService {
                 if (reportDTO.getSectionB().getStudentEvaluationOfProgramQuality() != null) {
                     log.info("Saving student evaluation of program quality");
                     APRSummarySectionBSEPQ sectionBSEPQ = new APRSummarySectionBSEPQ();
+                    sectionBSEPQ.setId(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getId());
                     sectionBSEPQ.setReportId(reportDTO.getReportId());
                     sectionBSEPQ.setEvaluationDate(DateUtil.parseDate(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getEvaluationDate()));
                     sectionBSEPQ.setNoOfParticipants(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getNoOfParticipants());
@@ -103,6 +117,7 @@ public class AnnualProgramReportDataService {
                 if (reportDTO.getSectionB().getScientificResearch() != null) {
                     log.info("Saving scientific research");
                     APRSummarySectionBSRIDRY sectionBSRIDRY = new APRSummarySectionBSRIDRY();
+                    sectionBSRIDRY.setId(reportDTO.getSectionB().getScientificResearch().getId());
                     sectionBSRIDRY.setReportId(reportDTO.getReportId());
                     sectionBSRIDRY.setPsr(reportDTO.getSectionB().getScientificResearch().getPublishedScientificResearch());
                     sectionBSRIDRY.setCrp(reportDTO.getSectionB().getScientificResearch().getCurrentResearchProjects());
@@ -119,6 +134,7 @@ public class AnnualProgramReportDataService {
                     boolean firstRecord = true;
                     for (CommunityPartnershipDTO cpDTO : reportDTO.getSectionB().getCommunityPartnership()) {
                         APRSummarySectionBCP sectionBCP = new APRSummarySectionBCP();
+                        sectionBCP.setId(cpDTO.getId());
                         sectionBCP.setReportId(reportDTO.getReportId());
                         sectionBCP.setActivityImplemented(cpDTO.getActivity());
                         sectionBCP.setDescription(cpDTO.getDescription());
@@ -134,6 +150,7 @@ public class AnnualProgramReportDataService {
                     log.info("Saving other evaluation");
                     APRSummarySectionBOE sectionBOE = new APRSummarySectionBOE();
                     sectionBOE.setReportId(reportDTO.getReportId());
+                    sectionBOE.setId(reportDTO.getSectionB().getOtherEvaluation().getId());
                     sectionBOE.setEvaluationMethod(reportDTO.getSectionB().getOtherEvaluation().getEvaluationMethod());
                     sectionBOE.setDate(DateUtil.parseDate(reportDTO.getSectionB().getOtherEvaluation().getDate()));
                     sectionBOE.setNoOfParticipants(reportDTO.getSectionB().getOtherEvaluation().getNoOfParticipants());
@@ -147,6 +164,7 @@ public class AnnualProgramReportDataService {
                 log.info("Saving section C");
                 for (SectionCDTO sectionCDTO : reportDTO.getSectionC()) {
                     APRSummarySectionCKPIPE sectionCKPIPE = new APRSummarySectionCKPIPE();
+                    sectionCKPIPE.setId(sectionCDTO.getId());
                     sectionCKPIPE.setReportId(reportDTO.getReportId());
                     sectionCKPIPE.setKpiId(sectionCDTO.getKpiId());
                     sectionCKPIPE.setActualValue(sectionCDTO.getActualValue());
@@ -161,6 +179,7 @@ public class AnnualProgramReportDataService {
             if (reportDTO.getSectionD() != null) {
                 log.info("Saving section D");
                 APRSummarySectionD sectionD = new APRSummarySectionD();
+                sectionD.setId(reportDTO.getSectionD().getId());
                 sectionD.setReportId(reportDTO.getReportId());
                 sectionD.setTeaching(reportDTO.getSectionD().getTeaching());
                 sectionD.setAssessment(reportDTO.getSectionD().getAssessment());
@@ -175,6 +194,7 @@ public class AnnualProgramReportDataService {
                 log.info("Saving section E");
                 for (SectionEDTO sectionEDTO : reportDTO.getSectionE()) {
                     APRSummarySectionE sectionE = new APRSummarySectionE();
+                    sectionE.setId(sectionEDTO.getId());
                     sectionE.setReportId(reportDTO.getReportId());
                     sectionE.setDpId(sectionEDTO.getDevelopmentPlanId());
                     sectionE.setPi(sectionEDTO.getPriorityOfImprovement());
@@ -187,6 +207,7 @@ public class AnnualProgramReportDataService {
             if (reportDTO.getSectionF() != null) {
                 log.info("Saving section F");
                 APRSectionF sectionF = new APRSectionF();
+                sectionF.setId(reportDTO.getSectionF().getId());
                 sectionF.setReportId(reportDTO.getReportId());
                 sectionF.setCouncilCommittee(reportDTO.getSectionF().getCouncilCommitteeId());
                 sectionF.setReferenceNo(reportDTO.getSectionF().getReferenceNo());
@@ -209,129 +230,110 @@ public class AnnualProgramReportDataService {
             throw new CustomException(AnnualProgramReportDataConstant.APR_DATA_CREATION_FAILED);
         }
     }
+    @Transactional(readOnly = true)
     public ResponseEntity<ResponseObject> getReportById(String reportId) throws CustomException {
         try {
             log.info("Fetching report with ID: {}", reportId);
             ReportDTO reportDTO = new ReportDTO();
             reportDTO.setReportId(reportId);
 
-            // Fetch section A
             APRSummarySectionA sectionA = sectionARepository.findByReportId(reportId);
             if (sectionA != null) {
                 log.info("Found section A for report ID: {}", reportId);
                 SectionADTO sectionADTO = new SectionADTO();
+                sectionADTO.setId(sectionA.getId());
                 sectionADTO.setNsep(sectionA.getNsep());
                 sectionADTO.setNswsp(sectionA.getNswsp());
                 sectionADTO.setNswcp(sectionA.getNswcp());
                 reportDTO.setSectionA(sectionADTO);
             }
 
-            // Fetch section B - Student Evaluation of Course
-            SectionBDTO sectionBDTO = new SectionBDTO();
+            APRSummarySectionB sectionBSummary = sectionBRepository.findByReportId(reportId);
+            if (sectionBSummary != null) {
+                SectionBDTO sectionBDTO = new SectionBDTO();
+                sectionBDTO.setId(sectionBSummary.getId());
+                sectionBDTO.setStrength(sectionBSummary.getStrength());
+                sectionBDTO.setChallenges(sectionBSummary.getChallenges());
 
-            List<APRSummarySectionBSEC> sectionBSECList = sectionBSECRepository.findByReportId(reportId);
-            if (!sectionBSECList.isEmpty()) {
-                List<StudentEvaluationOfCourseDTO> secDTOList = new ArrayList<>();
-                for (APRSummarySectionBSEC sectionBSEC : sectionBSECList) {
+                List<StudentEvaluationOfCourseDTO> secDTOs = sectionBSECRepository.findByReportId(reportId).stream().map(sec -> {
                     StudentEvaluationOfCourseDTO secDTO = new StudentEvaluationOfCourseDTO();
-                    secDTO.setCourseCode(sectionBSEC.getCourseCode());
-                    secDTO.setNoOfStudentEvaluatedCourse(sectionBSEC.getNswec());
-                    secDTO.setPercentageOfParticipant(sectionBSEC.getPp());
-                    secDTO.setEvaluationResult(sectionBSEC.getEr());
-                    secDTO.setRecommendation(sectionBSEC.getDr());
-                    secDTOList.add(secDTO);
-                }
-                sectionBDTO.setStudentEvaluationOfCourse(secDTOList);
-                log.info("Student Evaluation Of Course retrieved for report ID: {}", reportId);
-            }
+                    secDTO.setId(sec.getId());
+                    secDTO.setCourseCode(sec.getCourseCode());
+                    secDTO.setNoOfStudentEvaluatedCourse(sec.getNswec());
+                    secDTO.setPercentageOfParticipant(sec.getPp());
+                    secDTO.setEvaluationResult(sec.getEr());
+                    secDTO.setRecommendation(sec.getDr());
+                    return secDTO;
+                }).collect(Collectors.toList());
+                sectionBDTO.setStudentEvaluationOfCourse(secDTOs);
 
-            APRSummarySectionBSEPQ sectionBSEPQ = sectionBSEPQRepository.findByReportId(reportId);
-            if (sectionBSEPQ != null) {
-                StudentEvaluationOfProgramQualityDTO sepqDTO = new StudentEvaluationOfProgramQualityDTO();
-                sepqDTO.setEvaluationDate(DateUtil.formatDate(sectionBSEPQ.getEvaluationDate()));
-                sepqDTO.setNoOfParticipants(sectionBSEPQ.getNoOfParticipants());
-                sepqDTO.setStudentFeedback(sectionBSEPQ.getStudentFeedback());
-                sepqDTO.setProgramResponse(sectionBSEPQ.getProgramResponse());
-                sectionBDTO.setStudentEvaluationOfProgramQuality(sepqDTO);
-                log.info("Student Evaluation Of Program Quality retrieved for report ID: {}", reportId);
-            }
-
-            // Fetch section B - Scientific Research
-            APRSummarySectionBSRIDRY sectionBSRIDRY = sectionBSRIDRYRepository.findByReportId(reportId);
-            if (sectionBSRIDRY != null) {
-                log.info("Found scientific research for report ID: {}", reportId);
-                if (reportDTO.getSectionB() == null) {
-                    reportDTO.setSectionB(new SectionBDTO());
+                APRSummarySectionBSEPQ sectionBSEPQ = sectionBSEPQRepository.findByReportId(reportId);
+                if (sectionBSEPQ != null) {
+                    StudentEvaluationOfProgramQualityDTO sepqDTO = new StudentEvaluationOfProgramQualityDTO();
+                    sepqDTO.setId(sectionBSEPQ.getId());
+                    sepqDTO.setEvaluationDate(DateUtil.formatDate(sectionBSEPQ.getEvaluationDate()));
+                    sepqDTO.setNoOfParticipants(sectionBSEPQ.getNoOfParticipants());
+                    sepqDTO.setStudentFeedback(sectionBSEPQ.getStudentFeedback());
+                    sepqDTO.setProgramResponse(sectionBSEPQ.getProgramResponse());
+                    sectionBDTO.setStudentEvaluationOfProgramQuality(sepqDTO);
                 }
-                ScientificResearchDTO srDTO = new ScientificResearchDTO();
-                srDTO.setPublishedScientificResearch(sectionBSRIDRY.getPsr());
-                srDTO.setCurrentResearchProjects(sectionBSRIDRY.getCrp());
-                srDTO.setConferencesOrganizedByProgram(sectionBSRIDRY.getCop());
-                srDTO.setSeminarsHeldByProgram(sectionBSRIDRY.getShp());
-                srDTO.setConferencesAttendees(sectionBSRIDRY.getCa());
-                srDTO.setSeminarsAttendees(sectionBSRIDRY.getSa());
-                srDTO.setDiscussion(sectionBSRIDRY.getDiscussion());
-                sectionBDTO.setScientificResearch(srDTO);
-            }
 
-            // Fetch section B - Community Partnership
-            List<APRSummarySectionBCP> sectionBCPs = sectionBCPRepository.findByReportId(reportId);
-            if (sectionBCPs != null && !sectionBCPs.isEmpty()) {
-                log.info("Found community partnership activities for report ID: {}", reportId);
-                if (reportDTO.getSectionB() == null) {
-                    reportDTO.setSectionB(new SectionBDTO());
+                APRSummarySectionBSRIDRY sectionBSRIDRY = sectionBSRIDRYRepository.findByReportId(reportId);
+                if (sectionBSRIDRY != null) {
+                    ScientificResearchDTO srDTO = new ScientificResearchDTO();
+                    srDTO.setId(sectionBSRIDRY.getId());
+                    srDTO.setPublishedScientificResearch(sectionBSRIDRY.getPsr());
+                    srDTO.setCurrentResearchProjects(sectionBSRIDRY.getCrp());
+                    srDTO.setConferencesOrganizedByProgram(sectionBSRIDRY.getCop());
+                    srDTO.setSeminarsHeldByProgram(sectionBSRIDRY.getShp());
+                    srDTO.setConferencesAttendees(sectionBSRIDRY.getCa());
+                    srDTO.setSeminarsAttendees(sectionBSRIDRY.getSa());
+                    srDTO.setDiscussion(sectionBSRIDRY.getDiscussion());
+                    sectionBDTO.setScientificResearch(srDTO);
                 }
-                for (APRSummarySectionBCP sectionBCP : sectionBCPs) {
+
+                List<CommunityPartnershipDTO> cpDTOs = sectionBCPRepository.findByReportId(reportId).stream().map(cp -> {
                     CommunityPartnershipDTO cpDTO = new CommunityPartnershipDTO();
-                    cpDTO.setActivity(sectionBCP.getActivityImplemented());
-                    cpDTO.setDescription(sectionBCP.getDescription());
-                    cpDTO.setComment(sectionBCP.getComments());
-                    sectionBDTO.getCommunityPartnership().add(cpDTO);
-                }
-            }
+                    cpDTO.setId(cp.getId());
+                    cpDTO.setActivity(cp.getActivityImplemented());
+                    cpDTO.setDescription(cp.getDescription());
+                    cpDTO.setComment(cp.getComments());
+                    return cpDTO;
+                }).collect(Collectors.toList());
+                sectionBDTO.setCommunityPartnership(cpDTOs);
 
-            // Fetch section B - Other Evaluation
-            APRSummarySectionBOE sectionBOE = sectionBOERepository.findByReportId(reportId);
-            if (sectionBOE != null) {
-                log.info("Found other evaluation for report ID: {}", reportId);
-                if (reportDTO.getSectionB() == null) {
-                    reportDTO.setSectionB(new SectionBDTO());
+                APRSummarySectionBOE sectionBOE = sectionBOERepository.findByReportId(reportId);
+                if (sectionBOE != null) {
+                    OtherEvaluationDTO oeDTO = new OtherEvaluationDTO();
+                    oeDTO.setId(sectionBOE.getId());
+                    oeDTO.setEvaluationMethod(sectionBOE.getEvaluationMethod());
+                    oeDTO.setDate(DateUtil.formatDate(sectionBOE.getDate()));
+                    oeDTO.setNoOfParticipants(sectionBOE.getNoOfParticipants());
+                    oeDTO.setSummaryOfEvaluatorReview(sectionBOE.getSer());
+                    oeDTO.setProgramResponse(sectionBOE.getProgramResponse());
+                    sectionBDTO.setOtherEvaluation(oeDTO);
                 }
-                OtherEvaluationDTO oeDTO = new OtherEvaluationDTO();
-                oeDTO.setEvaluationMethod(sectionBOE.getEvaluationMethod());
-                oeDTO.setDate(DateUtil.formatDate(sectionBOE.getDate()));
-                oeDTO.setNoOfParticipants(sectionBOE.getNoOfParticipants());
-                oeDTO.setSummaryOfEvaluatorReview(sectionBOE.getSer());
-                oeDTO.setProgramResponse(sectionBOE.getProgramResponse());
-                sectionBDTO.setOtherEvaluation(oeDTO);
-            }
-            // Set Section B to the report DTO if it has any data
-            if (sectionBDTO.getStudentEvaluationOfCourse() != null || sectionBDTO.getStudentEvaluationOfProgramQuality() != null
-                    || sectionBDTO.getScientificResearch() != null || sectionBDTO.getCommunityPartnership() != null
-                    || sectionBDTO.getOtherEvaluation() != null) {
+
                 reportDTO.setSectionB(sectionBDTO);
             }
-            // Fetch section C
-            List<APRSummarySectionCKPIPE> sectionCKPIPEs = sectionCKPIPERepository.findByReportId(reportId);
-            if (sectionCKPIPEs != null && !sectionCKPIPEs.isEmpty()) {
-                log.info("Found section C KPI performance evaluation for report ID: {}", reportId);
-                for (APRSummarySectionCKPIPE sectionCKPIPE : sectionCKPIPEs) {
-                    SectionCDTO sectionCDTO = new SectionCDTO();
-                    sectionCDTO.setKpiId(sectionCKPIPE.getKpiId());
-                    sectionCDTO.setActualValue(sectionCKPIPE.getActualValue());
-                    sectionCDTO.setInternalBenchmark(sectionCKPIPE.getInternalBenchmark());
-                    sectionCDTO.setAnalysis(sectionCKPIPE.getAnalysis());
-                    sectionCDTO.setNewTarget(sectionCKPIPE.getNewTarget());
-                    sectionCDTO.setComments(sectionCKPIPE.getComments());
-                    reportDTO.getSectionC().add(sectionCDTO);
-                }
-            }
 
-            // Fetch section D
+            List<SectionCDTO> sectionCDTOs = sectionCKPIPERepository.findByReportId(reportId).stream().map(sectionCKPIPE -> {
+                SectionCDTO sectionCDTO = new SectionCDTO();
+                sectionCDTO.setId(sectionCKPIPE.getId());
+                sectionCDTO.setKpiId(sectionCKPIPE.getKpiId());
+                sectionCDTO.setActualValue(sectionCKPIPE.getActualValue());
+                sectionCDTO.setInternalBenchmark(sectionCKPIPE.getInternalBenchmark());
+                sectionCDTO.setAnalysis(sectionCKPIPE.getAnalysis());
+                sectionCDTO.setNewTarget(sectionCKPIPE.getNewTarget());
+                sectionCDTO.setComments(sectionCKPIPE.getComments());
+                return sectionCDTO;
+            }).collect(Collectors.toList());
+            reportDTO.setSectionC(sectionCDTOs);
+
             APRSummarySectionD sectionD = sectionDRepository.findByReportId(reportId);
             if (sectionD != null) {
-                log.info("Found section D for report ID: {}", reportId);
                 SectionDDTO sectionDDTO = new SectionDDTO();
+                sectionDDTO.setId(sectionD.getId());
                 sectionDDTO.setTeaching(sectionD.getTeaching());
                 sectionDDTO.setAssessment(sectionD.getAssessment());
                 sectionDDTO.setGuidanceCounseling(sectionD.getGuidanceCounseling());
@@ -341,29 +343,25 @@ public class AnnualProgramReportDataService {
                 reportDTO.setSectionD(sectionDDTO);
             }
 
-            // Fetch section E
-            List<APRSummarySectionE> sectionEs = sectionERepository.findByReportId(reportId);
-            if (sectionEs != null && !sectionEs.isEmpty()) {
-                log.info("Found section E program development plan for report ID: {}", reportId);
-                for (APRSummarySectionE sectionE : sectionEs) {
-                    SectionEDTO sectionEDTO = new SectionEDTO();
-                    sectionEDTO.setDevelopmentPlanId(sectionE.getDpId());
-                    sectionEDTO.setPriorityOfImprovement(sectionE.getPi());
-                    sectionEDTO.setAction(sectionE.getAction());
-                    sectionEDTO.setActionResponsibility(sectionE.getActionResponsibility());
-                    reportDTO.getSectionE().add(sectionEDTO);
-                }
-            }
+            List<SectionEDTO> sectionEDTOs = sectionERepository.findByReportId(reportId).stream().map(sectionE -> {
+                SectionEDTO sectionEDTO = new SectionEDTO();
+                sectionEDTO.setId(sectionE.getId());
+                sectionEDTO.setDevelopmentPlanId(sectionE.getDpId());
+                sectionEDTO.setPriorityOfImprovement(sectionE.getPi());
+                sectionEDTO.setAction(sectionE.getAction());
+                sectionEDTO.setActionResponsibility(sectionE.getActionResponsibility());
+                return sectionEDTO;
+            }).collect(Collectors.toList());
+            reportDTO.setSectionE(sectionEDTOs);
 
-            // Fetch section F
             APRSectionF sectionF = sectionFRepository.findByReportId(reportId);
             if (sectionF != null) {
-                log.info("Found section F for report ID: {}", reportId);
                 SectionFDTO sectionFDTO = new SectionFDTO();
+                sectionFDTO.setId(sectionF.getId());
                 sectionFDTO.setCouncilCommitteeId(sectionF.getCouncilCommittee());
                 sectionFDTO.setReferenceNo(sectionF.getReferenceNo());
                 sectionFDTO.setApprovalDate(DateUtil.formatDate(sectionF.getApprovalDate()));
-                sectionFDTO.setDepartmentStamp(sectionF.getDepartmentStamp());
+                sectionFDTO.setDepartmentStamp(Base64.getEncoder().encodeToString(sectionF.getDepartmentStamp()).getBytes());
                 reportDTO.setSectionF(sectionFDTO);
             }
 
@@ -375,7 +373,37 @@ public class AnnualProgramReportDataService {
                     new HttpHeaders(), AnnualProgramReportDataConstant.APR_DATA_GET_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
             log.error("Error while fetching Annual Program Report Data {}", ex.getMessage());
-            throw new CustomException(AnnualProgramReportDataConstant.APR_DATA_NOT_FOUND);
+            throw new CustomException(AnnualProgramReportDataConstant.APR_DATA_GET_FAILED);
         }
     }
+    @Transactional
+    public ResponseEntity<ResponseObject> deleteReportById(String reportId) {
+        try {
+            log.info("Deleting report with ID: {}", reportId);
+
+            sectionARepository.deleteByReportId(reportId);
+            sectionBSECRepository.deleteByReportId(reportId);
+            sectionBSEPQRepository.deleteByReportId(reportId);
+            sectionBSRIDRYRepository.deleteByReportId(reportId);
+            sectionBCPRepository.deleteByReportId(reportId);
+            sectionBOERepository.deleteByReportId(reportId);
+            sectionCKPIMasterRepository.deleteByReportId(reportId);
+            sectionCKPIPERepository.deleteByReportId(reportId);
+            sectionDRepository.deleteByReportId(reportId);
+            sectionERepository.deleteByReportId(reportId);
+            sectionFRepository.deleteByReportId(reportId);
+            sectionBRepository.deleteByReportId(reportId);
+
+            log.info("Completed deleting report data with ID: {}", reportId);
+            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getBusinessMsg()),
+                    AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getHttpStatus().getReasonPhrase(),
+                    String.valueOf(Math.round(Math.random() * 100)), null,
+                    String.valueOf(AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getHttpStatus().value()), null,
+                    new HttpHeaders(), AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getHttpStatus());
+        } catch (Exception ex) {
+            log.error("Error while deleting report data {}", ex.getMessage());
+            throw new CustomException(AnnualProgramReportDataConstant.APR_DATA_DELETION_FAILED);
+        }
+    }
+
 }

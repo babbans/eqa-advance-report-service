@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SectionDDTO {
+    private Long id;
     private String teaching;
     private String assessment;
     private String guidanceCounseling;
