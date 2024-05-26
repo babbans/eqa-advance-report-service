@@ -15,4 +15,6 @@ public interface AnnualProgramReportTaskDetailRepository extends JpaRepository<A
     @Modifying
     @Transactional
     public void deleteWithIds(List<Long> ids);
+
+    List<AnnualProgramReportTaskDetail> findByReportMaster_ReportId(String reportId);
 }

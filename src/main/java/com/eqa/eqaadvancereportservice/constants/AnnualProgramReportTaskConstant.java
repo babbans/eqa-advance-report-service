@@ -16,6 +16,8 @@ public enum AnnualProgramReportTaskConstant {
 			HttpStatus.INTERNAL_SERVER_ERROR),
 	APR_TASK_NOT_FOUND("EQA-APR-TASK.0004", "Annual Program Report's Task not found with given id", HttpStatus.NOT_FOUND),
 
+	APR_REPORT_NOT_FOUND("EQA-APR-TASK.0004", "Annual Program Report not found with given id", HttpStatus.NOT_FOUND),
+
 	APR_TASK_BAD_REQUEST_ERROR("EQA-APR-TASK.0005","Invalid input!",HttpStatus.BAD_REQUEST),
 
 	APR_TASK_CREATE_SUCCESS("EQA-APR-TASK.2000", "Annual Program Report's Task(s) has/have been assigned successfully.", HttpStatus.CREATED),

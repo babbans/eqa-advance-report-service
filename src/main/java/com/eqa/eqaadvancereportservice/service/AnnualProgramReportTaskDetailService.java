@@ -17,8 +17,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,8 +52,23 @@ public class AnnualProgramReportTaskDetailService {
     }
 
     public ResponseEntity<ResponseObject> save(AnnualProgramReportTaskDetailDTO dto) {
+        ReportMaster savedReportMaster = null;
+        String reportId = dto.getReportId();
+
+        if (reportId == null) {
+            ReportMaster reportMaster = new ReportMaster();
+            reportMaster.setProgramId(dto.getProgramId());
+            reportMaster.setDepartmentId(dto.getDepartmentId());
+            reportMaster.setCollegeId(dto.getCollegeId());
+            reportMaster.setAcademicYear(dto.getAcademicYear());
+
+            savedReportMaster = reportMasterRepository.save(reportMaster);
+            log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
+        } else {
+            savedReportMaster = reportMasterRepository.findById(reportId).orElseThrow(() -> new CustomException(AnnualProgramReportTaskConstant.APR_REPORT_NOT_FOUND));
+        }
         try {
-            String reportId = dto.getReportId();
+
             List<AnnualProgramReportTaskDetail> taskDetails = new ArrayList<>();
             for (AnnualProgramReportTaskDetailDTO.TaskDTO task : dto.getTasks()) {
                 AnnualProgramReportTaskDetail taskDetail = new AnnualProgramReportTaskDetail();
@@ -63,33 +80,18 @@ public class AnnualProgramReportTaskDetailService {
                 taskDetail.setResponsible(task.getResponsible());
                 taskDetail.setSection(task.getSectionId());
                 taskDetail.setActive(task.isActive());
-                if(task.getId() != null) {
+                if (task.getId() != null) {
                     taskDetail.setCreatedBy(task.getCreatedBy());
                     taskDetail.setCreationDatetime(task.getCreationDatetime());
                 }
+                taskDetail.setReportMaster(savedReportMaster); // Set the report master
                 taskDetails.add(taskDetail);
             }
+
             List<AnnualProgramReportTaskDetail> savedTaskDetails = taskDetailRepository.saveAll(taskDetails);
             log.info("AnnualProgramReportTaskDetail saved/updated successfully");
 
-            if(reportId == null) {
-                ReportMaster reportMaster = new ReportMaster();
-                reportMaster.setProgramId(dto.getProgramId());
-                reportMaster.setDepartmentId(dto.getDepartmentId());
-                reportMaster.setCollegeId(dto.getCollegeId());
-                reportMaster.setAcademicYear(dto.getAcademicYear());
-
-                ReportMaster savedReportMaster = reportMasterRepository.save(reportMaster);
-                reportId = savedReportMaster.getReportId();
-                log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
-            }
-
             List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(savedTaskDetails);
-            if(reportId != null) {
-                for (AnnualProgramReportTaskDetailDTO entry : groupedTasks) {
-                    entry.setReportId(reportId);
-                }
-            }
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
@@ -97,7 +99,7 @@ public class AnnualProgramReportTaskDetailService {
                     new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
             log.error("Error while saving/updating AnnualProgramReportTaskDetail {}", ex.getMessage());
-            if(ex instanceof UnauthorizedException){
+            if (ex instanceof UnauthorizedException) {
                 throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_UNAUTHORIZED_ACCESS);
             }
             throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_CREATION_FAILED);
@@ -154,6 +156,24 @@ public class AnnualProgramReportTaskDetailService {
             throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_DELETION_FAILED);
         }
     }
+    public ResponseEntity<ResponseObject> findByReportId(String reportId) throws CustomException {
+        try {
+            List<AnnualProgramReportTaskDetail> taskDetails = taskDetailRepository.findByReportMaster_ReportId(reportId);
+            if (taskDetails.isEmpty()) {
+                throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_NOT_FOUND);
+            }
+            List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(taskDetails);
+            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getBusinessMsg()),
+                    AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus().getReasonPhrase(),
+                    String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
+                    String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus().value()), null,
+                    new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus());
+        } catch (Exception ex) {
+            log.error("Error while fetching AnnualProgramReportTaskDetail by reportId {}", ex.getMessage());
+            throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_GET_FAILED);
+        }
+    }
+
     private AnnualProgramReportTaskDetail getExistingTaskDetail(Long id) {
         return taskDetailRepository.findById(id)
                 .orElseThrow(() -> {
@@ -177,6 +197,7 @@ public class AnnualProgramReportTaskDetailService {
             dto.setDepartmentId(firstTask.getDepartmentId());
             dto.setCollegeId(firstTask.getCollegeId());
             dto.setAcademicYear(firstTask.getAcademicYear());
+            dto.setReportId(firstTask.getReportId().toString());
 
             List<AnnualProgramReportTaskDetailDTO.TaskDTO> tasks = groupedTasks.stream().map(task -> {
                 AnnualProgramReportTaskDetailDTO.TaskDTO taskDTO = new AnnualProgramReportTaskDetailDTO.TaskDTO();

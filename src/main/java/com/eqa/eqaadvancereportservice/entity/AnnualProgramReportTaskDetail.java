@@ -37,6 +37,10 @@ public class AnnualProgramReportTaskDetail implements Auditable {
     @Column(name = "active", nullable = false)
     private boolean active;
 
+    @ManyToOne
+    @JoinColumn(name = "report_id")
+    private ReportMaster reportMaster;
+
     @Column(name = "created_by", length = 100)
     private String createdBy;
 
@@ -67,6 +71,10 @@ public class AnnualProgramReportTaskDetail implements Auditable {
     @Override
     public void setUpdateDatetime(LocalDateTime updateDatetime) {
         this.updateDatetime = updateDatetime;
+    }
+
+    public String getReportId() {
+        return reportMaster != null ? reportMaster.getReportId() : null;
     }
 }
 

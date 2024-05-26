@@ -55,4 +55,8 @@ public class AnnualProgramReportTaskDetailController {
         log.info("getTaskDetailById() : Start, id is {}", id);
         return taskDetailService.findById(id);
     }
+    @GetMapping("/by-report")
+    public ResponseEntity<ResponseObject> getTaskDetailsByReportId(@RequestParam String reportId) {
+        return taskDetailService.findByReportId(reportId);
+    }
 }
