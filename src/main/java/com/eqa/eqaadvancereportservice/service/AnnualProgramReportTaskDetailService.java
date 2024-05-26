@@ -51,6 +51,7 @@ public class AnnualProgramReportTaskDetailService {
 
     public ResponseEntity<ResponseObject> save(AnnualProgramReportTaskDetailDTO dto) {
         try {
+            String reportId = dto.getReportId();
             List<AnnualProgramReportTaskDetail> taskDetails = new ArrayList<>();
             for (AnnualProgramReportTaskDetailDTO.TaskDTO task : dto.getTasks()) {
                 AnnualProgramReportTaskDetail taskDetail = new AnnualProgramReportTaskDetail();
@@ -58,32 +59,44 @@ public class AnnualProgramReportTaskDetailService {
                 taskDetail.setDepartmentId(dto.getDepartmentId());
                 taskDetail.setCollegeId(dto.getCollegeId());
                 taskDetail.setAcademicYear(dto.getAcademicYear());
+                taskDetail.setId(task.getId());
                 taskDetail.setResponsible(task.getResponsible());
                 taskDetail.setSection(task.getSectionId());
                 taskDetail.setActive(task.isActive());
+                if(task.getId() != null) {
+                    taskDetail.setCreatedBy(task.getCreatedBy());
+                    taskDetail.setCreationDatetime(task.getCreationDatetime());
+                }
                 taskDetails.add(taskDetail);
             }
             List<AnnualProgramReportTaskDetail> savedTaskDetails = taskDetailRepository.saveAll(taskDetails);
-            log.info("AnnualProgramReportTaskDetail saved successfully");
+            log.info("AnnualProgramReportTaskDetail saved/updated successfully");
 
-            ReportMaster reportMaster = new ReportMaster();
-            reportMaster.setProgramId(dto.getProgramId());
-            reportMaster.setDepartmentId(dto.getDepartmentId());
-            reportMaster.setCollegeId(dto.getCollegeId());
-            reportMaster.setAcademicYear(dto.getAcademicYear());
+            if(reportId == null) {
+                ReportMaster reportMaster = new ReportMaster();
+                reportMaster.setProgramId(dto.getProgramId());
+                reportMaster.setDepartmentId(dto.getDepartmentId());
+                reportMaster.setCollegeId(dto.getCollegeId());
+                reportMaster.setAcademicYear(dto.getAcademicYear());
 
-            ReportMaster savedReportMaster = reportMasterRepository.save(reportMaster);
+                ReportMaster savedReportMaster = reportMasterRepository.save(reportMaster);
+                reportId = savedReportMaster.getReportId();
+                log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
+            }
 
-            log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
             List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(savedTaskDetails);
-            groupedTasks.forEach(entry -> entry.setReportId(savedReportMaster.getReportId()));
+            if(reportId != null) {
+                for (AnnualProgramReportTaskDetailDTO entry : groupedTasks) {
+                    entry.setReportId(reportId);
+                }
+            }
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
-            log.error("Error while saving AnnualProgramReportTaskDetail {}", ex.getMessage());
+            log.error("Error while saving/updating AnnualProgramReportTaskDetail {}", ex.getMessage());
             if(ex instanceof UnauthorizedException){
                 throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_UNAUTHORIZED_ACCESS);
             }
@@ -171,6 +184,10 @@ public class AnnualProgramReportTaskDetailService {
                 taskDTO.setResponsible(task.getResponsible());
                 taskDTO.setSectionId(task.getSection());
                 taskDTO.setActive(task.isActive());
+                taskDTO.setCreatedBy(task.getCreatedBy());
+                taskDTO.setCreationDatetime(task.getCreationDatetime());
+                taskDTO.setUpdatedBy(task.getUpdatedBy());
+                taskDTO.setUpdateDatetime(task.getUpdateDatetime());
                 return taskDTO;
             }).collect(Collectors.toList());
 

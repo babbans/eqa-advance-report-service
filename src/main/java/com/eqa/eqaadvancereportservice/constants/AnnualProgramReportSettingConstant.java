@@ -9,7 +9,7 @@ public enum AnnualProgramReportSettingConstant {
 			HttpStatus.FORBIDDEN),
 	APR_SETTING_CREATION_FAILED("EQA-APR-SETTING.0001", "Error occurred while saving Annual Program Report Section(s).",
 			HttpStatus.INTERNAL_SERVER_ERROR),
-	APR_SETTING_UPDATE_FAILED("EQA-APR-SETTING.0002", "Error occurred while updating Annual Program Report Section(s).",
+	APR_SETTING_UPDATE_FAILED("EQA-APR-SETTING.0002", "Error occurred while updating Annual Program Report Section.",
 			HttpStatus.INTERNAL_SERVER_ERROR),
 	APR_SETTING_DELETION_FAILED("EQA-APR-SETTING.0003", "Error occurred while deleting Annual Program Report Section(s).",
 			HttpStatus.INTERNAL_SERVER_ERROR),

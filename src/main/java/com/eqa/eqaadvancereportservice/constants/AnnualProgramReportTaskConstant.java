@@ -12,7 +12,7 @@ public enum AnnualProgramReportTaskConstant {
 			HttpStatus.INTERNAL_SERVER_ERROR),
 	APR_TASK_UPDATE_FAILED("EQA-APR-TASK.0002", "Error occurred while updating Annual Program Report's Task.",
 			HttpStatus.INTERNAL_SERVER_ERROR),
-	APR_TASK_DELETION_FAILED("EQA-APR-TASK.0003", "Error occurred while deleting Annual Program Report's Task.",
+	APR_TASK_DELETION_FAILED("EQA-APR-TASK.0003", "Error occurred while deleting Annual Program Report's Task(s).",
 			HttpStatus.INTERNAL_SERVER_ERROR),
 	APR_TASK_NOT_FOUND("EQA-APR-TASK.0004", "Annual Program Report's Task not found with given id", HttpStatus.NOT_FOUND),
 
@@ -21,14 +21,14 @@ public enum AnnualProgramReportTaskConstant {
 	APR_TASK_CREATE_SUCCESS("EQA-APR-TASK.2000", "Annual Program Report's Task(s) has/have been assigned successfully.", HttpStatus.CREATED),
 
 	APR_TASK_UPDATE_SUCCESS("EQA-APR-TASK.2001", "Annual Program Report's Task updated successfully.", HttpStatus.OK),
-	APR_TASK_DELETE_SUCCESS("EQA-APR-TASK.2003", "Annual Program Report's Task deleted successfully.", HttpStatus.OK),
+	APR_TASK_DELETE_SUCCESS("EQA-APR-TASK.2003", "Annual Program Report's Task(s) has been deleted successfully.", HttpStatus.OK),
 	APR_TASK_LIST_SUCCESS("EQA-APR-TASK.2004", "Annual Program Report's Task list fetched successfully.", HttpStatus.OK),
-	APR_TASK_LIST_FAILED("EQA-APR-TASK.2005", "Error while fetching Annual Program Report's Task list.", HttpStatus.OK),
-	APR_REPORTS_LIST_SUCCESS("EQA-APR-REPORT.2004", "Annual Program Report's  list fetched successfully.", HttpStatus.OK),
-	APR_REPORTS_LIST_FAILED("EQA-APR-REPORT.2005", "Error while fetching Annual Program Report's list.", HttpStatus.OK),
+	APR_TASK_LIST_FAILED("EQA-APR-TASK.2005", "Error while fetching Annual Program Report Task(s) list.", HttpStatus.OK),
+	APR_REPORTS_LIST_SUCCESS("EQA-APR-REPORT.2004", "Annual Program Report Task(s) list fetched successfully.", HttpStatus.OK),
+	APR_REPORTS_LIST_FAILED("EQA-APR-REPORT.2005", "Error while fetching Annual Program Report Task(s) list.", HttpStatus.OK),
 
-	APR_TASK_GET_FAILED("EQA-APR-TASK.2006", "Error while fetching Annual Program Report's Task.", HttpStatus.OK),
-	APR_TASK_GET_SUCCESS("EQA-APR-TASK.2007", "Annual Program Report's Task fetched successfully.", HttpStatus.OK);
+	APR_TASK_GET_FAILED("EQA-APR-TASK.2006", "Error while fetching Annual Program Report Task(s).", HttpStatus.OK),
+	APR_TASK_GET_SUCCESS("EQA-APR-TASK.2007", "Annual Program Report Task fetched successfully.", HttpStatus.OK);
 
 
 	private String businessCode;

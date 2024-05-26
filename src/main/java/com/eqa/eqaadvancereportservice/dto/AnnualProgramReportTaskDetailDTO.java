@@ -1,7 +1,9 @@
 package com.eqa.eqaadvancereportservice.dto;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Data
 public class AnnualProgramReportTaskDetailDTO {
@@ -17,5 +19,9 @@ public class AnnualProgramReportTaskDetailDTO {
         private String responsible;
         private Long sectionId;
         private boolean active;
+        private String createdBy;
+        private LocalDateTime creationDatetime;
+        private String updatedBy;
+        private LocalDateTime updateDatetime;
     }
 }
