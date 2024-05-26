@@ -13,6 +13,7 @@ public class AnnualProgramReportTaskDetailDTO {
     private List<TaskDTO> tasks;
     @Data
     public static class TaskDTO {
+        private Long id;
         private String responsible;
         private Long sectionId;
         private boolean active;

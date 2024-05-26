@@ -35,6 +35,9 @@ public class APRSummarySectionBSEPQ implements Auditable {
     @Column(name = "program_response", columnDefinition = "TEXT COMMENT 'Program response'")
     private String programResponse;
 
+    @Column(name = "feedback_type", columnDefinition = "TEXT COMMENT 'Feedback Type'")
+    private String feedbackType;
+
     @Column(name = "created_by", length = 100)
     private String createdBy;
 

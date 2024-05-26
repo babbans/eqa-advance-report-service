@@ -90,10 +90,10 @@ public class AnnualProgramReportTaskDetailService {
             throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_CREATION_FAILED);
         }
     }
-    public ResponseEntity<ResponseObject> updateTaskDetail(AnnualProgramReportTaskDetail setting, long id) throws CustomException {
+    public ResponseEntity<ResponseObject> updateTaskDetail(AnnualProgramReportTaskDetail taskDetail, long id) throws CustomException {
         AnnualProgramReportTaskDetail existingTaskDetail = getExistingTaskDetail(id);
         try {
-            modelMapper.map(setting, existingTaskDetail);
+            modelMapper.map(taskDetail, existingTaskDetail);
             AnnualProgramReportTaskDetail updatedTaskDetail = taskDetailRepository.save(existingTaskDetail);
             log.info("Report TaskDetail updated successfully");
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_UPDATE_SUCCESS.getBusinessMsg()),
@@ -167,6 +167,7 @@ public class AnnualProgramReportTaskDetailService {
 
             List<AnnualProgramReportTaskDetailDTO.TaskDTO> tasks = groupedTasks.stream().map(task -> {
                 AnnualProgramReportTaskDetailDTO.TaskDTO taskDTO = new AnnualProgramReportTaskDetailDTO.TaskDTO();
+                taskDTO.setId(task.getId());
                 taskDTO.setResponsible(task.getResponsible());
                 taskDTO.setSectionId(task.getSection());
                 taskDTO.setActive(task.isActive());

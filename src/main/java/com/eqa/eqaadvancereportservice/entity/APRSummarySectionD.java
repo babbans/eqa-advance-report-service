@@ -40,6 +40,9 @@ public class APRSummarySectionD implements Auditable {
     @Column(name = "research _activities", length = 2000)
     private String researchActivities;
 
+    @Column(name = "other", length = 2000)
+    private String other;
+
     @Column(name = "created_by", length = 100)
     private String createdBy;
 

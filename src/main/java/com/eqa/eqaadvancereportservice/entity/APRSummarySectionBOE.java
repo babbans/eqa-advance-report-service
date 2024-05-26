@@ -38,6 +38,9 @@ public class APRSummarySectionBOE implements Auditable {
     @Column(name = "program_response", length = 2000, columnDefinition = "TEXT(2000) COMMENT 'Program response'")
     private String programResponse;
 
+    @Column(name = "evaluation_type", columnDefinition = "TEXT COMMENT 'Evaluation type'")
+    private String evaluationType;
+
     @Column(name = "created_by", length = 100)
     private String createdBy;
 

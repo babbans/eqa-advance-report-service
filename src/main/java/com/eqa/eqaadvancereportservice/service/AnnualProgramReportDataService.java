@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -111,6 +110,7 @@ public class AnnualProgramReportDataService {
                     sectionBSEPQ.setNoOfParticipants(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getNoOfParticipants());
                     sectionBSEPQ.setStudentFeedback(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getStudentFeedback());
                     sectionBSEPQ.setProgramResponse(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getProgramResponse());
+                    sectionBSEPQ.setFeedbackType(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getFeedbackType());
                     sectionBSEPQRepository.save(sectionBSEPQ);
                 }
 
@@ -156,6 +156,7 @@ public class AnnualProgramReportDataService {
                     sectionBOE.setNoOfParticipants(reportDTO.getSectionB().getOtherEvaluation().getNoOfParticipants());
                     sectionBOE.setSer(reportDTO.getSectionB().getOtherEvaluation().getSummaryOfEvaluatorReview());
                     sectionBOE.setProgramResponse(reportDTO.getSectionB().getOtherEvaluation().getProgramResponse());
+                    sectionBOE.setEvaluationType(reportDTO.getSectionB().getOtherEvaluation().getEvaluationType());
                     sectionBOERepository.save(sectionBOE);
                 }
             }
@@ -187,6 +188,7 @@ public class AnnualProgramReportDataService {
                 sectionD.setLearningResources(reportDTO.getSectionD().getLearningResources());
                 sectionD.setFaculty(reportDTO.getSectionD().getFaculty());
                 sectionD.setResearchActivities(reportDTO.getSectionD().getResearchActivities());
+                sectionD.setOther(reportDTO.getSectionD().getOther());
                 sectionDRepository.save(sectionD);
             }
 
@@ -275,6 +277,7 @@ public class AnnualProgramReportDataService {
                     sepqDTO.setNoOfParticipants(sectionBSEPQ.getNoOfParticipants());
                     sepqDTO.setStudentFeedback(sectionBSEPQ.getStudentFeedback());
                     sepqDTO.setProgramResponse(sectionBSEPQ.getProgramResponse());
+                    sepqDTO.setFeedbackType(sectionBSEPQ.getFeedbackType());
                     sectionBDTO.setStudentEvaluationOfProgramQuality(sepqDTO);
                 }
 
@@ -311,6 +314,7 @@ public class AnnualProgramReportDataService {
                     oeDTO.setNoOfParticipants(sectionBOE.getNoOfParticipants());
                     oeDTO.setSummaryOfEvaluatorReview(sectionBOE.getSer());
                     oeDTO.setProgramResponse(sectionBOE.getProgramResponse());
+                    oeDTO.setEvaluationType(sectionBOE.getEvaluationType());
                     sectionBDTO.setOtherEvaluation(oeDTO);
                 }
 
@@ -340,6 +344,7 @@ public class AnnualProgramReportDataService {
                 sectionDDTO.setLearningResources(sectionD.getLearningResources());
                 sectionDDTO.setFaculty(sectionD.getFaculty());
                 sectionDDTO.setResearchActivities(sectionD.getResearchActivities());
+                sectionDDTO.setOther(sectionD.getOther());
                 reportDTO.setSectionD(sectionDDTO);
             }
 
