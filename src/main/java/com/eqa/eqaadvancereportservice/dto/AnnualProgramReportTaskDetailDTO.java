@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class AnnualProgramReportTaskDetailDTO {
+    private String reportId;
     private String programId;
     private String departmentId;
     private String collegeId;

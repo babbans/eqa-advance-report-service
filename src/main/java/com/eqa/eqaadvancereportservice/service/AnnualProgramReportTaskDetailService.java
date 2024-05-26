@@ -75,10 +75,11 @@ public class AnnualProgramReportTaskDetailService {
             ReportMaster savedReportMaster = reportMasterRepository.save(reportMaster);
 
             log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
-
+            List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(savedTaskDetails);
+            groupedTasks.forEach(entry -> entry.setReportId(savedReportMaster.getReportId()));
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
-                    String.valueOf(Math.round(Math.random() * 100)), groupTask(savedTaskDetails),
+                    String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
