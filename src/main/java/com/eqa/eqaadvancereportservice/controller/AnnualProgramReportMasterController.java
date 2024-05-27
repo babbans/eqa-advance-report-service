@@ -21,9 +21,18 @@ public class AnnualProgramReportMasterController {
     @Autowired
     private AnnualProgramReportMasterService reportMasterService;
 
-    @GetMapping
+    @GetMapping("all")
     public ResponseEntity<ResponseObject> getAllReports() {
         log.info("getAllReports() : Start");
         return reportMasterService.findAll();
+    }
+    @GetMapping
+    public ResponseEntity<ResponseObject> findByGivenCriteria(
+            @RequestParam String collegeId,
+            @RequestParam String departmentId,
+            @RequestParam String programId,
+            @RequestParam Integer academicYear) {
+        log.info("findByGivenCriteria() : Start");
+        return reportMasterService.findByGivenCriteria(collegeId, departmentId, programId, academicYear);
     }
 }

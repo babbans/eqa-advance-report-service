@@ -16,8 +16,6 @@ public enum AnnualProgramReportTaskConstant {
 			HttpStatus.INTERNAL_SERVER_ERROR),
 	APR_TASK_NOT_FOUND("EQA-APR-TASK.0004", "Annual Program Report's Task not found with given id", HttpStatus.NOT_FOUND),
 
-	APR_REPORT_NOT_FOUND("EQA-APR-TASK.0004", "Annual Program Report not found with given id", HttpStatus.NOT_FOUND),
-
 	APR_TASK_BAD_REQUEST_ERROR("EQA-APR-TASK.0005","Invalid input!",HttpStatus.BAD_REQUEST),
 
 	APR_TASK_CREATE_SUCCESS("EQA-APR-TASK.2000", "Annual Program Report's Task(s) has/have been assigned successfully.", HttpStatus.CREATED),
@@ -26,11 +24,16 @@ public enum AnnualProgramReportTaskConstant {
 	APR_TASK_DELETE_SUCCESS("EQA-APR-TASK.2003", "Annual Program Report's Task(s) has been deleted successfully.", HttpStatus.OK),
 	APR_TASK_LIST_SUCCESS("EQA-APR-TASK.2004", "Annual Program Report's Task list fetched successfully.", HttpStatus.OK),
 	APR_TASK_LIST_FAILED("EQA-APR-TASK.2005", "Error while fetching Annual Program Report Task(s) list.", HttpStatus.OK),
-	APR_REPORTS_LIST_SUCCESS("EQA-APR-REPORT.2004", "Annual Program Report Task(s) list fetched successfully.", HttpStatus.OK),
-	APR_REPORTS_LIST_FAILED("EQA-APR-REPORT.2005", "Error while fetching Annual Program Report Task(s) list.", HttpStatus.OK),
+	APR_REPORTS_LIST_SUCCESS("EQA-APR-REPORT.2004", "Annual Program Report list fetched successfully.", HttpStatus.OK),
+	APR_REPORTS_LIST_FAILED("EQA-APR-REPORT.2005", "Error while fetching Annual Program Report list.", HttpStatus.OK),
 
 	APR_TASK_GET_FAILED("EQA-APR-TASK.2006", "Error while fetching Annual Program Report Task(s).", HttpStatus.OK),
-	APR_TASK_GET_SUCCESS("EQA-APR-TASK.2007", "Annual Program Report Task fetched successfully.", HttpStatus.OK);
+	APR_TASK_GET_SUCCESS("EQA-APR-TASK.2007", "Annual Program Report Task fetched successfully.", HttpStatus.OK),
+
+	APR_REPORT_NOT_FOUND("EQA-APR-REPORT.0004", "Annual Program Report not found with given criteria", HttpStatus.NOT_FOUND),
+	APR_REPORT_GET_FAILED("EQA-APR-REPORT.2006", "Error while fetching Annual Program Report.", HttpStatus.OK),
+	APR_REPORT_GET_SUCCESS("EQA-APR-REPORT.2007", "Annual Program Report fetched successfully.", HttpStatus.OK);
+
 
 
 	private String businessCode;

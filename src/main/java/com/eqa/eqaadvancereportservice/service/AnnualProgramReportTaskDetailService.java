@@ -39,10 +39,14 @@ public class AnnualProgramReportTaskDetailService {
     public ResponseEntity<ResponseObject> findAll() throws CustomException {
         try {
             List<AnnualProgramReportTaskDetail> taskDetails = taskDetailRepository.findAll();
+            if (taskDetails.isEmpty()) {
+                throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_NOT_FOUND);
+            }
             log.info("AnnualProgramReportTaskDetail fetched successfully from DB");
+            List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(taskDetails);
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getHttpStatus().getReasonPhrase(),
-                    String.valueOf(Math.round(Math.random() * 100)), groupTask(taskDetails),
+                    String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
@@ -216,5 +220,12 @@ public class AnnualProgramReportTaskDetailService {
             dtos.add(dto);
         }
         return dtos;
+    }
+    public AnnualProgramReportTaskDetailDTO getTasksByReportId(String reportId) throws CustomException {
+        List<AnnualProgramReportTaskDetail> taskDetails = taskDetailRepository.findByReportMaster_ReportId(reportId);
+        if (taskDetails.isEmpty()) {
+            throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_NOT_FOUND);
+        }
+        return groupTask(taskDetails).get(0);
     }
 }

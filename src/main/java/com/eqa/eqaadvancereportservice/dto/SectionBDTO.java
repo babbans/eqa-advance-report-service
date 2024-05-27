@@ -9,11 +9,11 @@ public class SectionBDTO {
     private Long id;
     private String strength;
     private String challenges;
-    private List<StudentEvaluationOfCourseDTO> studentEvaluationOfCourse = new ArrayList<>();;
-    private StudentEvaluationOfProgramQualityDTO studentEvaluationOfProgramQuality;
+    private List<StudentEvaluationOfCourseDTO> studentEvaluationOfCourse = new ArrayList<>();
+    private List<StudentEvaluationOfProgramQualityDTO> studentEvaluationOfProgramQuality = new ArrayList<>();
     private ScientificResearchDTO scientificResearch;
     private List<CommunityPartnershipDTO> communityPartnership = new ArrayList<>();;
-    private OtherEvaluationDTO otherEvaluation;
+    private List<OtherEvaluationDTO> otherEvaluation = new ArrayList<>();
 
     // Getters and Setters
 }

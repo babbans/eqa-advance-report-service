@@ -12,12 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,164 +64,211 @@ public class AnnualProgramReportDataService {
     @Autowired
     private APRSummarySectionBRepository sectionBRepository;
 
+    @Autowired
+    private AnnualProgramReportTaskDetailService taskDetailService;
+    @Autowired
+    private AnnualProgramReportSettingRepository settingRepository;
     @Transactional
     public ResponseEntity<ResponseObject> saveOrUpdateReport(ReportDTO reportDTO) {
         try {
             log.info("Starting to save or update report with ID: {}", reportDTO.getReportId());
+            String username = null;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof User) {
+                username = ((User) authentication.getPrincipal()).getUsername();
 
-            if (reportDTO.getSectionA() != null) {
-                log.info("Saving section A");
-                APRSummarySectionA sectionA = new APRSummarySectionA();
-                sectionA.setId(reportDTO.getSectionA().getId());
-                sectionA.setReportId(reportDTO.getReportId());
-                sectionA.setNsep(reportDTO.getSectionA().getNsep());
-                sectionA.setNswsp(reportDTO.getSectionA().getNswsp());
-                sectionA.setNswcp(reportDTO.getSectionA().getNswcp());
-                sectionARepository.save(sectionA);
             }
+            if (reportDTO.getReportId() != null && username != null) {
+                AnnualProgramReportTaskDetailDTO tasksByReportId = taskDetailService.getTasksByReportId(reportDTO.getReportId());
 
-            if (reportDTO.getSectionB() != null) {
-                log.info("Saving section B");
-                // Save or update the section B summary
-                APRSummarySectionB sectionBSummary = new APRSummarySectionB();
-                sectionBSummary.setId(reportDTO.getSectionB().getId());
-                sectionBSummary.setReportId(reportDTO.getReportId());
-                sectionBSummary.setStrength(reportDTO.getSectionB().getStrength());
-                sectionBSummary.setChallenges(reportDTO.getSectionB().getChallenges());
-                sectionBRepository.save(sectionBSummary);
+                // Fetch all section settings at once
+                List<AnnualProgramReportSetting> sectionSettings = settingRepository.findAll();
 
-                if (reportDTO.getSectionB().getStudentEvaluationOfCourse() != null) {
-                    for (StudentEvaluationOfCourseDTO secDTO : reportDTO.getSectionB().getStudentEvaluationOfCourse()) {
-                        log.info("Saving student evaluation of course for course code: {}", secDTO.getCourseCode());
-                        APRSummarySectionBSEC sectionBSEC = new APRSummarySectionBSEC();
-                        sectionBSEC.setId(secDTO.getId());
-                        sectionBSEC.setReportId(reportDTO.getReportId());
-                        sectionBSEC.setCourseCode(secDTO.getCourseCode());
-                        sectionBSEC.setNswec(secDTO.getNoOfStudentEvaluatedCourse());
-                        sectionBSEC.setPp(secDTO.getPercentageOfParticipant());
-                        sectionBSEC.setEr(secDTO.getEvaluationResult());
-                        sectionBSEC.setDr(secDTO.getRecommendation());
-                        sectionBSECRepository.save(sectionBSEC);
+                Map<String, Long> sectionNameToIdMap = sectionSettings.stream()
+                        .collect(Collectors.toMap(setting -> setting.getSectionName().toUpperCase(), AnnualProgramReportSetting::getId));
+                if (reportDTO.getSectionA() != null) {
+                    if (hasAccessToSection(username, tasksByReportId, sectionNameToIdMap, Section.SECTIONA.name())) {
+                        log.info("Saving section A");
+                        APRSummarySectionA sectionA = new APRSummarySectionA();
+                        sectionA.setId(reportDTO.getSectionA().getId());
+                        sectionA.setReportId(reportDTO.getReportId());
+                        sectionA.setNsep(reportDTO.getSectionA().getNsep());
+                        sectionA.setNswsp(reportDTO.getSectionA().getNswsp());
+                        sectionA.setNswcp(reportDTO.getSectionA().getNswcp());
+                        sectionARepository.save(sectionA);
+                    } else {
+                        log.error("User {} does not have access to section A", username);
                     }
                 }
 
-                if (reportDTO.getSectionB().getStudentEvaluationOfProgramQuality() != null) {
-                    log.info("Saving student evaluation of program quality");
-                    APRSummarySectionBSEPQ sectionBSEPQ = new APRSummarySectionBSEPQ();
-                    sectionBSEPQ.setId(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getId());
-                    sectionBSEPQ.setReportId(reportDTO.getReportId());
-                    sectionBSEPQ.setEvaluationDate(DateUtil.parseDate(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getEvaluationDate()));
-                    sectionBSEPQ.setNoOfParticipants(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getNoOfParticipants());
-                    sectionBSEPQ.setStudentFeedback(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getStudentFeedback());
-                    sectionBSEPQ.setProgramResponse(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getProgramResponse());
-                    sectionBSEPQ.setFeedbackType(reportDTO.getSectionB().getStudentEvaluationOfProgramQuality().getFeedbackType());
-                    sectionBSEPQRepository.save(sectionBSEPQ);
-                }
+                if (reportDTO.getSectionB() != null) {
+                    if (hasAccessToSection(username, tasksByReportId, sectionNameToIdMap, Section.SECTIONB.name())) {
+                        log.info("Saving section B");
 
-                if (reportDTO.getSectionB().getScientificResearch() != null) {
-                    log.info("Saving scientific research");
-                    APRSummarySectionBSRIDRY sectionBSRIDRY = new APRSummarySectionBSRIDRY();
-                    sectionBSRIDRY.setId(reportDTO.getSectionB().getScientificResearch().getId());
-                    sectionBSRIDRY.setReportId(reportDTO.getReportId());
-                    sectionBSRIDRY.setPsr(reportDTO.getSectionB().getScientificResearch().getPublishedScientificResearch());
-                    sectionBSRIDRY.setCrp(reportDTO.getSectionB().getScientificResearch().getCurrentResearchProjects());
-                    sectionBSRIDRY.setCop(reportDTO.getSectionB().getScientificResearch().getConferencesOrganizedByProgram());
-                    sectionBSRIDRY.setShp(reportDTO.getSectionB().getScientificResearch().getSeminarsHeldByProgram());
-                    sectionBSRIDRY.setCa(reportDTO.getSectionB().getScientificResearch().getConferencesAttendees());
-                    sectionBSRIDRY.setSa(reportDTO.getSectionB().getScientificResearch().getSeminarsAttendees());
-                    sectionBSRIDRY.setDiscussion(reportDTO.getSectionB().getScientificResearch().getDiscussion());
-                    sectionBSRIDRYRepository.save(sectionBSRIDRY);
-                }
+                        // Save or update the section B summary
+                        APRSummarySectionB sectionBSummary = new APRSummarySectionB();
+                        sectionBSummary.setId(reportDTO.getSectionB().getId());
+                        sectionBSummary.setReportId(reportDTO.getReportId());
+                        sectionBSummary.setStrength(reportDTO.getSectionB().getStrength());
+                        sectionBSummary.setChallenges(reportDTO.getSectionB().getChallenges());
+                        sectionBRepository.save(sectionBSummary);
 
-                if (reportDTO.getSectionB().getCommunityPartnership() != null) {
-                    log.info("Saving community partnership");
-                    boolean firstRecord = true;
-                    for (CommunityPartnershipDTO cpDTO : reportDTO.getSectionB().getCommunityPartnership()) {
-                        APRSummarySectionBCP sectionBCP = new APRSummarySectionBCP();
-                        sectionBCP.setId(cpDTO.getId());
-                        sectionBCP.setReportId(reportDTO.getReportId());
-                        sectionBCP.setActivityImplemented(cpDTO.getActivity());
-                        sectionBCP.setDescription(cpDTO.getDescription());
-                        if (firstRecord) {
-                            sectionBCP.setComments(cpDTO.getComment());
-                            firstRecord = false;
+                        if (reportDTO.getSectionB().getStudentEvaluationOfCourse() != null) {
+                            for (StudentEvaluationOfCourseDTO secDTO : reportDTO.getSectionB().getStudentEvaluationOfCourse()) {
+                                log.info("Saving student evaluation of course for course code: {}", secDTO.getCourseCode());
+                                APRSummarySectionBSEC sectionBSEC = new APRSummarySectionBSEC();
+                                sectionBSEC.setId(secDTO.getId());
+                                sectionBSEC.setReportId(reportDTO.getReportId());
+                                sectionBSEC.setCourseCode(secDTO.getCourseCode());
+                                sectionBSEC.setNswec(secDTO.getNoOfStudentEvaluatedCourse());
+                                sectionBSEC.setPp(secDTO.getPercentageOfParticipant());
+                                sectionBSEC.setEr(secDTO.getEvaluationResult());
+                                sectionBSEC.setDr(secDTO.getRecommendation());
+                                sectionBSECRepository.save(sectionBSEC);
+                            }
                         }
-                        sectionBCPRepository.save(sectionBCP);
+
+                        if (reportDTO.getSectionB().getStudentEvaluationOfProgramQuality() != null) {
+                            log.info("Saving student evaluation of program quality");
+                            for (StudentEvaluationOfProgramQualityDTO sepqDTO : reportDTO.getSectionB().getStudentEvaluationOfProgramQuality()) {
+                                APRSummarySectionBSEPQ sectionBSEPQ = new APRSummarySectionBSEPQ();
+                                sectionBSEPQ.setId(sepqDTO.getId());
+                                sectionBSEPQ.setReportId(reportDTO.getReportId());
+                                sectionBSEPQ.setEvaluationDate(DateUtil.parseDate(sepqDTO.getEvaluationDate()));
+                                sectionBSEPQ.setNoOfParticipants(sepqDTO.getNoOfParticipants());
+                                sectionBSEPQ.setStudentFeedback(sepqDTO.getStudentFeedback());
+                                sectionBSEPQ.setProgramResponse(sepqDTO.getProgramResponse());
+                                sectionBSEPQ.setFeedbackType(sepqDTO.getFeedbackType());
+                                sectionBSEPQRepository.save(sectionBSEPQ);
+                            }
+                        }
+
+                        if (reportDTO.getSectionB().getScientificResearch() != null) {
+                            log.info("Saving scientific research");
+                            APRSummarySectionBSRIDRY sectionBSRIDRY = new APRSummarySectionBSRIDRY();
+                            sectionBSRIDRY.setId(reportDTO.getSectionB().getScientificResearch().getId());
+                            sectionBSRIDRY.setReportId(reportDTO.getReportId());
+                            sectionBSRIDRY.setPsr(reportDTO.getSectionB().getScientificResearch().getPublishedScientificResearch());
+                            sectionBSRIDRY.setCrp(reportDTO.getSectionB().getScientificResearch().getCurrentResearchProjects());
+                            sectionBSRIDRY.setCop(reportDTO.getSectionB().getScientificResearch().getConferencesOrganizedByProgram());
+                            sectionBSRIDRY.setShp(reportDTO.getSectionB().getScientificResearch().getSeminarsHeldByProgram());
+                            sectionBSRIDRY.setCa(reportDTO.getSectionB().getScientificResearch().getConferencesAttendees());
+                            sectionBSRIDRY.setSa(reportDTO.getSectionB().getScientificResearch().getSeminarsAttendees());
+                            sectionBSRIDRY.setDiscussion(reportDTO.getSectionB().getScientificResearch().getDiscussion());
+                            sectionBSRIDRYRepository.save(sectionBSRIDRY);
+                        }
+
+                        if (reportDTO.getSectionB().getCommunityPartnership() != null) {
+                            log.info("Saving community partnership");
+                            for (CommunityPartnershipDTO cpDTO : reportDTO.getSectionB().getCommunityPartnership()) {
+                                APRSummarySectionBCP sectionBCP = new APRSummarySectionBCP();
+                                sectionBCP.setId(cpDTO.getId());
+                                sectionBCP.setReportId(reportDTO.getReportId());
+                                sectionBCP.setActivityImplemented(cpDTO.getActivity());
+                                sectionBCP.setDescription(cpDTO.getDescription());
+                                sectionBCPRepository.save(sectionBCP);
+                            }
+                        }
+
+                        if (reportDTO.getSectionB().getOtherEvaluation() != null) {
+                            log.info("Saving other evaluation");
+                            for (OtherEvaluationDTO oeDTO : reportDTO.getSectionB().getOtherEvaluation()) {
+                                APRSummarySectionBOE sectionBOE = new APRSummarySectionBOE();
+                                sectionBOE.setReportId(reportDTO.getReportId());
+                                sectionBOE.setId(oeDTO.getId());
+                                sectionBOE.setEvaluationMethod(oeDTO.getEvaluationMethod());
+                                sectionBOE.setDate(DateUtil.parseDate(oeDTO.getDate()));
+                                sectionBOE.setNoOfParticipants(oeDTO.getNoOfParticipants());
+                                sectionBOE.setSer(oeDTO.getSummaryOfEvaluatorReview());
+                                sectionBOE.setProgramResponse(oeDTO.getProgramResponse());
+                                sectionBOE.setEvaluationType(oeDTO.getEvaluationType());
+                                sectionBOERepository.save(sectionBOE);
+                            }
+                        }
+                    } else {
+                        log.error("User {} does not have access to section B", username);
                     }
                 }
 
-                if (reportDTO.getSectionB().getOtherEvaluation() != null) {
-                    log.info("Saving other evaluation");
-                    APRSummarySectionBOE sectionBOE = new APRSummarySectionBOE();
-                    sectionBOE.setReportId(reportDTO.getReportId());
-                    sectionBOE.setId(reportDTO.getSectionB().getOtherEvaluation().getId());
-                    sectionBOE.setEvaluationMethod(reportDTO.getSectionB().getOtherEvaluation().getEvaluationMethod());
-                    sectionBOE.setDate(DateUtil.parseDate(reportDTO.getSectionB().getOtherEvaluation().getDate()));
-                    sectionBOE.setNoOfParticipants(reportDTO.getSectionB().getOtherEvaluation().getNoOfParticipants());
-                    sectionBOE.setSer(reportDTO.getSectionB().getOtherEvaluation().getSummaryOfEvaluatorReview());
-                    sectionBOE.setProgramResponse(reportDTO.getSectionB().getOtherEvaluation().getProgramResponse());
-                    sectionBOE.setEvaluationType(reportDTO.getSectionB().getOtherEvaluation().getEvaluationType());
-                    sectionBOERepository.save(sectionBOE);
+                if (reportDTO.getSectionC() != null) {
+                    log.info("Saving section C");
+                    if (hasAccessToSection(username, tasksByReportId, sectionNameToIdMap, Section.SECTIONC.name())) {
+                        for (SectionCDTO sectionCDTO : reportDTO.getSectionC()) {
+                            APRSummarySectionCKPIPE sectionCKPIPE = new APRSummarySectionCKPIPE();
+                            sectionCKPIPE.setId(sectionCDTO.getId());
+                            sectionCKPIPE.setReportId(reportDTO.getReportId());
+                            sectionCKPIPE.setKpiId(sectionCDTO.getKpiId());
+                            sectionCKPIPE.setActualValue(sectionCDTO.getActualValue());
+                            sectionCKPIPE.setInternalBenchmark(sectionCDTO.getInternalBenchmark());
+                            sectionCKPIPE.setAnalysis(sectionCDTO.getAnalysis());
+                            sectionCKPIPE.setNewTarget(sectionCDTO.getNewTarget());
+                            sectionCKPIPE.setComments(sectionCDTO.getComments());
+                            sectionCKPIPERepository.save(sectionCKPIPE);
+                        }
+                    } else {
+                        log.error("User {} does not have access to section C", username);
+                    }
+
+                }
+
+                if (reportDTO.getSectionD() != null) {
+                    if (hasAccessToSection(username, tasksByReportId, sectionNameToIdMap, Section.SECTIOND.name())) {
+                        log.info("Saving section D");
+                        APRSummarySectionD sectionD = new APRSummarySectionD();
+                        sectionD.setId(reportDTO.getSectionD().getId());
+                        sectionD.setReportId(reportDTO.getReportId());
+                        sectionD.setTeaching(reportDTO.getSectionD().getTeaching());
+                        sectionD.setAssessment(reportDTO.getSectionD().getAssessment());
+                        sectionD.setGuidanceCounseling(reportDTO.getSectionD().getGuidanceCounseling());
+                        sectionD.setLearningResources(reportDTO.getSectionD().getLearningResources());
+                        sectionD.setFaculty(reportDTO.getSectionD().getFaculty());
+                        sectionD.setResearchActivities(reportDTO.getSectionD().getResearchActivities());
+                        sectionD.setOther(reportDTO.getSectionD().getOther());
+                        sectionDRepository.save(sectionD);
+                    } {
+                        log.error("User {} does not have access to section D", username);
+                    }
+
+                }
+
+                if (reportDTO.getSectionE() != null) {
+                    if (hasAccessToSection(username, tasksByReportId, sectionNameToIdMap, Section.SECTIONE.name())) {
+                        log.info("Saving section E");
+                        for (SectionEDTO sectionEDTO : reportDTO.getSectionE()) {
+                            APRSummarySectionE sectionE = new APRSummarySectionE();
+                            sectionE.setId(sectionEDTO.getId());
+                            sectionE.setReportId(reportDTO.getReportId());
+                            sectionE.setDpId(sectionEDTO.getDevelopmentPlanId());
+                            sectionE.setPi(sectionEDTO.getPriorityOfImprovement());
+                            sectionE.setAction(sectionEDTO.getAction());
+                            sectionE.setActionResponsibility(sectionEDTO.getActionResponsibility());
+                            sectionERepository.save(sectionE);
+                        }
+                    } {
+                        log.error("User {} does not have access to section E", username);
+                    }
+
+                }
+
+                if (reportDTO.getSectionF() != null) {
+                    if (hasAccessToSection(username, tasksByReportId, sectionNameToIdMap, Section.SECTIONF.name())) {
+                        log.info("Saving section F");
+                        APRSectionF sectionF = new APRSectionF();
+                        sectionF.setId(reportDTO.getSectionF().getId());
+                        sectionF.setReportId(reportDTO.getReportId());
+                        sectionF.setCouncilCommittee(reportDTO.getSectionF().getCouncilCommitteeId());
+                        sectionF.setReferenceNo(reportDTO.getSectionF().getReferenceNo());
+                        sectionF.setApprovalDate(DateUtil.parseDate(reportDTO.getSectionF().getApprovalDate()));
+                        byte[] departmentStamp = Base64.getDecoder().decode(reportDTO.getSectionF().getDepartmentStamp());
+                        sectionF.setDepartmentStamp(departmentStamp);
+                        sectionFRepository.save(sectionF);
+                    } {
+                        log.error("User {} does not have access to section F", username);
+                    }
+
                 }
             }
 
-            if (reportDTO.getSectionC() != null) {
-                log.info("Saving section C");
-                for (SectionCDTO sectionCDTO : reportDTO.getSectionC()) {
-                    APRSummarySectionCKPIPE sectionCKPIPE = new APRSummarySectionCKPIPE();
-                    sectionCKPIPE.setId(sectionCDTO.getId());
-                    sectionCKPIPE.setReportId(reportDTO.getReportId());
-                    sectionCKPIPE.setKpiId(sectionCDTO.getKpiId());
-                    sectionCKPIPE.setActualValue(sectionCDTO.getActualValue());
-                    sectionCKPIPE.setInternalBenchmark(sectionCDTO.getInternalBenchmark());
-                    sectionCKPIPE.setAnalysis(sectionCDTO.getAnalysis());
-                    sectionCKPIPE.setNewTarget(sectionCDTO.getNewTarget());
-                    sectionCKPIPE.setComments(sectionCDTO.getComments());
-                    sectionCKPIPERepository.save(sectionCKPIPE);
-                }
-            }
-
-            if (reportDTO.getSectionD() != null) {
-                log.info("Saving section D");
-                APRSummarySectionD sectionD = new APRSummarySectionD();
-                sectionD.setId(reportDTO.getSectionD().getId());
-                sectionD.setReportId(reportDTO.getReportId());
-                sectionD.setTeaching(reportDTO.getSectionD().getTeaching());
-                sectionD.setAssessment(reportDTO.getSectionD().getAssessment());
-                sectionD.setGuidanceCounseling(reportDTO.getSectionD().getGuidanceCounseling());
-                sectionD.setLearningResources(reportDTO.getSectionD().getLearningResources());
-                sectionD.setFaculty(reportDTO.getSectionD().getFaculty());
-                sectionD.setResearchActivities(reportDTO.getSectionD().getResearchActivities());
-                sectionD.setOther(reportDTO.getSectionD().getOther());
-                sectionDRepository.save(sectionD);
-            }
-
-            if (reportDTO.getSectionE() != null) {
-                log.info("Saving section E");
-                for (SectionEDTO sectionEDTO : reportDTO.getSectionE()) {
-                    APRSummarySectionE sectionE = new APRSummarySectionE();
-                    sectionE.setId(sectionEDTO.getId());
-                    sectionE.setReportId(reportDTO.getReportId());
-                    sectionE.setDpId(sectionEDTO.getDevelopmentPlanId());
-                    sectionE.setPi(sectionEDTO.getPriorityOfImprovement());
-                    sectionE.setAction(sectionEDTO.getAction());
-                    sectionE.setActionResponsibility(sectionEDTO.getActionResponsibility());
-                    sectionERepository.save(sectionE);
-                }
-            }
-
-            if (reportDTO.getSectionF() != null) {
-                log.info("Saving section F");
-                APRSectionF sectionF = new APRSectionF();
-                sectionF.setId(reportDTO.getSectionF().getId());
-                sectionF.setReportId(reportDTO.getReportId());
-                sectionF.setCouncilCommittee(reportDTO.getSectionF().getCouncilCommitteeId());
-                sectionF.setReferenceNo(reportDTO.getSectionF().getReferenceNo());
-                sectionF.setApprovalDate(DateUtil.parseDate(reportDTO.getSectionF().getApprovalDate()));
-                byte[] departmentStamp = Base64.getDecoder().decode(reportDTO.getSectionF().getDepartmentStamp());
-                sectionF.setDepartmentStamp(departmentStamp);
-                sectionFRepository.save(sectionF);
-            }
             log.info("Completed saving or updating report data with ID: {}", reportDTO.getReportId());
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportDataConstant.APR_DATA_CREATE_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportDataConstant.APR_DATA_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
@@ -269,16 +320,19 @@ public class AnnualProgramReportDataService {
                 }).collect(Collectors.toList());
                 sectionBDTO.setStudentEvaluationOfCourse(secDTOs);
 
-                APRSummarySectionBSEPQ sectionBSEPQ = sectionBSEPQRepository.findByReportId(reportId);
-                if (sectionBSEPQ != null) {
-                    StudentEvaluationOfProgramQualityDTO sepqDTO = new StudentEvaluationOfProgramQualityDTO();
-                    sepqDTO.setId(sectionBSEPQ.getId());
-                    sepqDTO.setEvaluationDate(DateUtil.formatDate(sectionBSEPQ.getEvaluationDate()));
-                    sepqDTO.setNoOfParticipants(sectionBSEPQ.getNoOfParticipants());
-                    sepqDTO.setStudentFeedback(sectionBSEPQ.getStudentFeedback());
-                    sepqDTO.setProgramResponse(sectionBSEPQ.getProgramResponse());
-                    sepqDTO.setFeedbackType(sectionBSEPQ.getFeedbackType());
-                    sectionBDTO.setStudentEvaluationOfProgramQuality(sepqDTO);
+                List<APRSummarySectionBSEPQ> sectionBSEPQs = sectionBSEPQRepository.findByReportId(reportId);
+                if (sectionBSEPQs != null) {
+                    List<StudentEvaluationOfProgramQualityDTO> sepqDTOs = sectionBSEPQs.stream().map(sepq -> {
+                        StudentEvaluationOfProgramQualityDTO sepqDTO = new StudentEvaluationOfProgramQualityDTO();
+                        sepqDTO.setId(sepq.getId());
+                        sepqDTO.setEvaluationDate(DateUtil.formatDate(sepq.getEvaluationDate()));
+                        sepqDTO.setNoOfParticipants(sepq.getNoOfParticipants());
+                        sepqDTO.setStudentFeedback(sepq.getStudentFeedback());
+                        sepqDTO.setProgramResponse(sepq.getProgramResponse());
+                        sepqDTO.setFeedbackType(sepq.getFeedbackType());
+                        return sepqDTO;
+                    }).collect(Collectors.toList());
+                    sectionBDTO.setStudentEvaluationOfProgramQuality(sepqDTOs);
                 }
 
                 APRSummarySectionBSRIDRY sectionBSRIDRY = sectionBSRIDRYRepository.findByReportId(reportId);
@@ -305,8 +359,7 @@ public class AnnualProgramReportDataService {
                 }).collect(Collectors.toList());
                 sectionBDTO.setCommunityPartnership(cpDTOs);
 
-                APRSummarySectionBOE sectionBOE = sectionBOERepository.findByReportId(reportId);
-                if (sectionBOE != null) {
+                List<OtherEvaluationDTO> oeDTOs = sectionBOERepository.findByReportId(reportId).stream().map(sectionBOE -> {
                     OtherEvaluationDTO oeDTO = new OtherEvaluationDTO();
                     oeDTO.setId(sectionBOE.getId());
                     oeDTO.setEvaluationMethod(sectionBOE.getEvaluationMethod());
@@ -315,8 +368,9 @@ public class AnnualProgramReportDataService {
                     oeDTO.setSummaryOfEvaluatorReview(sectionBOE.getSer());
                     oeDTO.setProgramResponse(sectionBOE.getProgramResponse());
                     oeDTO.setEvaluationType(sectionBOE.getEvaluationType());
-                    sectionBDTO.setOtherEvaluation(oeDTO);
-                }
+                    return oeDTO;
+                }).collect(Collectors.toList());
+                sectionBDTO.setOtherEvaluation(oeDTOs);
 
                 reportDTO.setSectionB(sectionBDTO);
             }
@@ -411,4 +465,16 @@ public class AnnualProgramReportDataService {
         }
     }
 
+    // Check if the user has access to the section
+    private boolean hasAccessToSection(String username, AnnualProgramReportTaskDetailDTO taskDetails, Map<String, Long> sectionNameToIdMap, String sectionName) {
+        Long sectionId = sectionNameToIdMap.get(sectionName);
+        if (sectionId != null) {
+            for (AnnualProgramReportTaskDetailDTO.TaskDTO task : taskDetails.getTasks()) {
+                if (task.getSectionId().equals(sectionId) && task.getResponsible().equals(username) && task.isActive()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
