@@ -12,6 +12,8 @@ public class CommonConstants {
 
 	public static final String REPORTS = "/reports";
 
+	public static final String KPI = "/kpi";
+
 	public static final String X_API_KEY = "x-api-key";
 	
 }

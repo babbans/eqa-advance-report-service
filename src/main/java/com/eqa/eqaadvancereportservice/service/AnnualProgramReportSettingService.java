@@ -30,11 +30,11 @@ public class AnnualProgramReportSettingService {
 
     public ResponseEntity<ResponseObject> findAll() throws CustomException {
         try {
-            List<AnnualProgramReportSetting> savedSettings = settingRepository.findAll();;
-            log.info("AnnualProgramReportSetting fetched successfully from DB");
+            List<AnnualProgramReportSetting> settings = settingRepository.findAll();;
+            log.info("AnnualProgramReportSetting list fetched successfully from DB");
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportSettingConstant.APR_SETTING_LIST_SUCCESS.getBusinessMsg()),
                     AnnualProgramReportSettingConstant.APR_SETTING_LIST_SUCCESS.getHttpStatus().getReasonPhrase(),
-                    String.valueOf(Math.round(Math.random() * 100)), savedSettings,
+                    String.valueOf(Math.round(Math.random() * 100)), settings,
                     String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_LIST_SUCCESS.getHttpStatus().value()), null,
                     new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_LIST_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
@@ -90,7 +90,7 @@ public class AnnualProgramReportSettingService {
                     new HttpHeaders(), AnnualProgramReportSettingConstant.APR_SETTING_GET_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
             log.error("Error while fetching AnnualProgramReportSetting {}", ex.getMessage());
-            throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_NOT_FOUND);
+            throw new CustomException(AnnualProgramReportSettingConstant.APR_SETTING_GET_FAILED);
         }
     }
 

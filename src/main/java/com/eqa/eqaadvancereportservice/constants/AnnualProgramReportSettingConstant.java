@@ -25,7 +25,27 @@ public enum AnnualProgramReportSettingConstant {
 	APR_SETTING_LIST_FAILED("EQA-APR-SETTING.2005", "Error while fetching Annual Program Report Section(s) list.", HttpStatus.OK),
 
 	APR_SETTING_GET_FAILED("EQA-APR-SETTING.2006", "Error while fetching Annual Program Report Section(s).", HttpStatus.OK),
-	APR_SETTING_GET_SUCCESS("EQA-APR-SETTING.2007", "Annual Program Report Section(s) fetched successfully.", HttpStatus.OK);
+	APR_SETTING_GET_SUCCESS("EQA-APR-SETTING.2007", "Annual Program Report Section(s) fetched successfully.", HttpStatus.OK),
+
+	APR_KPI_CREATION_FAILED("EQA-APR-KPI.0001", "Error occurred while saving Annual Program Report Kpi(s).",
+			HttpStatus.INTERNAL_SERVER_ERROR),
+	APR_KPI_UPDATE_FAILED("EQA-APR-KPI.0002", "Error occurred while updating Annual Program Report Kpi.",
+			HttpStatus.INTERNAL_SERVER_ERROR),
+	APR_KPI_DELETION_FAILED("EQA-APR-KPI.0003", "Error occurred while deleting Annual Program Report Kpi(s).",
+			HttpStatus.INTERNAL_SERVER_ERROR),
+	APR_KPI_NOT_FOUND("EQA-APR-KPI.0004", "Annual Program Report Kpi not found with given id", HttpStatus.NOT_FOUND),
+
+	APR_KPI_BAD_REQUEST_ERROR("EQA-APR-KPI.0005","Invalid input!",HttpStatus.BAD_REQUEST),
+
+	APR_KPI_CREATE_SUCCESS("EQA-APR-KPI.2000", "Annual Program Report Kpi(s) has been saved successfully.", HttpStatus.CREATED),
+
+	APR_KPI_UPDATE_SUCCESS("EQA-APR-KPI.2001", "Annual Program Report Kpi has been updated successfully.", HttpStatus.OK),
+	APR_KPI_DELETE_SUCCESS("EQA-APR-KPI.2003", "Annual Program Report Kpi(s) has been deleted successfully.", HttpStatus.OK),
+	APR_KPI_LIST_SUCCESS("EQA-APR-KPI.2004", "Annual Program Report Kpi(s) list fetched successfully.", HttpStatus.OK),
+	APR_KPI_LIST_FAILED("EQA-APR-KPI.2005", "Error while fetching Annual Program Report Kpi(s) list.", HttpStatus.OK),
+
+	APR_KPI_GET_FAILED("EQA-APR-KPI.2006", "Error while fetching Annual Program Report Kpi(s).", HttpStatus.OK),
+	APR_KPI_GET_SUCCESS("EQA-APR-KPI.2007", "Annual Program Report Kpi(s) fetched successfully.", HttpStatus.OK);
 
 	private String businessCode;
 
