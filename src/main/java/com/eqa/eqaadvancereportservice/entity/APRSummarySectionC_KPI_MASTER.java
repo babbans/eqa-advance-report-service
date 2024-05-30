@@ -28,8 +28,8 @@ public class APRSummarySectionC_KPI_MASTER implements Auditable {
     @Column(name = "kpi_description", length = 300, columnDefinition = "TEXT(300) COMMENT 'Description of KPI'")
     private String kpiDescription;
 
-    @Column(name = "targeted_value", columnDefinition = "DOUBLE COMMENT 'Targeted value for KPI'")
-    private Double targetedValue;
+    @Column(name = "targeted_value")
+    private String targetedValue;
 
     @Column(name = "degree", columnDefinition = "VARCHAR(100) COMMENT 'Degree b or m'")
     private String degree;

@@ -259,8 +259,16 @@ public class AnnualProgramReportDataService {
                         sectionF.setCouncilCommittee(reportDTO.getSectionF().getCouncilCommitteeId());
                         sectionF.setReferenceNo(reportDTO.getSectionF().getReferenceNo());
                         sectionF.setApprovalDate(DateUtil.parseDate(reportDTO.getSectionF().getApprovalDate()));
-                        byte[] departmentStamp = Base64.getDecoder().decode(reportDTO.getSectionF().getDepartmentStamp());
-                        sectionF.setDepartmentStamp(departmentStamp);
+                        try {
+                            byte[] departmentStamp = Base64.getDecoder().decode(reportDTO.getSectionF().getDepartmentStamp());
+                            sectionF.setDepartmentStamp(departmentStamp);
+                        } catch (IllegalArgumentException e) {
+                            log.error("Invalid base64 string for department stamp: {}", e.getMessage());
+                            // Handle the error accordingly, possibly by setting a default value or skipping this field
+                            // For example, you might want to continue to save without the department stamp
+                            // sectionF.setDepartmentStamp(new byte[0]); // Optionally set an empty array or handle as needed
+                        }
+
                         sectionFRepository.save(sectionF);
                     } {
                         log.error("User {} does not have access to section F", username);

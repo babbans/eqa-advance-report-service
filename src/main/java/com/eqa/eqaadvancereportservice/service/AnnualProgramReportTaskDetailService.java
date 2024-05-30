@@ -17,10 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,9 +36,6 @@ public class AnnualProgramReportTaskDetailService {
     public ResponseEntity<ResponseObject> findAll() throws CustomException {
         try {
             List<AnnualProgramReportTaskDetail> taskDetails = taskDetailRepository.findAll();
-            if (taskDetails.isEmpty()) {
-                throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_NOT_FOUND);
-            }
             log.info("AnnualProgramReportTaskDetail fetched successfully from DB");
             List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(taskDetails);
             return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getBusinessMsg()),
@@ -57,9 +51,13 @@ public class AnnualProgramReportTaskDetailService {
 
     public ResponseEntity<ResponseObject> save(AnnualProgramReportTaskDetailDTO dto) {
         ReportMaster savedReportMaster = null;
-        String reportId = dto.getReportId();
-
-        if (reportId == null) {
+        Optional<ReportMaster> reportMasterOptional = reportMasterRepository.findByCollegeIdAndDepartmentIdAndProgramIdAndAcademicYear(
+                dto.getCollegeId(),
+                dto.getDepartmentId(),
+                dto.getProgramId(),
+                dto.getAcademicYear()
+        );
+        if(!reportMasterOptional.isPresent()){
             ReportMaster reportMaster = new ReportMaster();
             reportMaster.setProgramId(dto.getProgramId());
             reportMaster.setDepartmentId(dto.getDepartmentId());
@@ -69,7 +67,7 @@ public class AnnualProgramReportTaskDetailService {
             savedReportMaster = reportMasterRepository.save(reportMaster);
             log.info("AnnualProgramReportMaster saved successfully {}", savedReportMaster);
         } else {
-            savedReportMaster = reportMasterRepository.findById(reportId).orElseThrow(() -> new CustomException(AnnualProgramReportTaskConstant.APR_REPORT_NOT_FOUND));
+            savedReportMaster = reportMasterOptional.get();
         }
         try {
 
