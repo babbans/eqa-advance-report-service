@@ -20,17 +20,17 @@ public class CustomException extends RuntimeException {
 	private AnnualProgramReportDataConstant dataConstant;
 
 	public CustomException(AnnualProgramReportDataConstant dataConstant) {
-		super(dataConstant.getBusinessMsg());
+		//super(dataConstant.getBusinessMsg());
 		this.dataConstant = dataConstant;
 	}
 
 	public CustomException(AnnualProgramReportSettingConstant settingConstant) {
-		super(settingConstant.getBusinessMsg());
+		//super(settingConstant.getBusinessMsg());
 		this.settingConstant = settingConstant;
 	}
 	
 	public CustomException(AnnualProgramReportTaskConstant taskConstant) {
-		super(taskConstant.getBusinessMsg());
+		//super(taskConstant.getBusinessMsg());
 		this.taskConstant = taskConstant;
 	}
 

@@ -1,6 +1,7 @@
 package com.eqa.eqaadvancereportservice.service;
 
 import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportDataConstant;
+import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportTaskConstant;
 import com.eqa.eqaadvancereportservice.dto.*;
 import com.eqa.eqaadvancereportservice.entity.*;
 import com.eqa.eqaadvancereportservice.exception.CustomException;
@@ -8,6 +9,7 @@ import com.eqa.eqaadvancereportservice.exception.UnauthorizedException;
 import com.eqa.eqaadvancereportservice.repository.*;
 import com.eqa.eqaadvancereportservice.util.CommonUtils;
 import com.eqa.eqaadvancereportservice.util.DateUtil;
+import com.eqa.eqaadvancereportservice.util.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -68,6 +70,9 @@ public class AnnualProgramReportDataService {
     private AnnualProgramReportTaskDetailService taskDetailService;
     @Autowired
     private AnnualProgramReportSettingRepository settingRepository;
+
+    @Autowired
+    private MessageUtil messageUtil;
     @Transactional
     public ResponseEntity<ResponseObject> saveOrUpdateReport(ReportDTO reportDTO) {
         try {
@@ -225,7 +230,7 @@ public class AnnualProgramReportDataService {
                         sectionD.setResearchActivities(reportDTO.getSectionD().getResearchActivities());
                         sectionD.setOther(reportDTO.getSectionD().getOther());
                         sectionDRepository.save(sectionD);
-                    } {
+                    } else {
                         log.error("User {} does not have access to section D", username);
                     }
 
@@ -244,7 +249,7 @@ public class AnnualProgramReportDataService {
                             sectionE.setActionResponsibility(sectionEDTO.getActionResponsibility());
                             sectionERepository.save(sectionE);
                         }
-                    } {
+                    } else {
                         log.error("User {} does not have access to section E", username);
                     }
 
@@ -270,15 +275,17 @@ public class AnnualProgramReportDataService {
                         }
 
                         sectionFRepository.save(sectionF);
-                    } {
+                    } else {
                         log.error("User {} does not have access to section F", username);
                     }
 
                 }
             }
-
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportDataConstant.APR_DATA_CREATE_SUCCESS.getBusinessCode()
+            );
             log.info("Completed saving or updating report data with ID: {}", reportDTO.getReportId());
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportDataConstant.APR_DATA_CREATE_SUCCESS.getBusinessMsg()),
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportDataConstant.APR_DATA_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), null,
                     String.valueOf(AnnualProgramReportDataConstant.APR_DATA_CREATE_SUCCESS.getHttpStatus().value()), null,
@@ -428,12 +435,14 @@ public class AnnualProgramReportDataService {
                 sectionFDTO.setCouncilCommitteeId(sectionF.getCouncilCommittee());
                 sectionFDTO.setReferenceNo(sectionF.getReferenceNo());
                 sectionFDTO.setApprovalDate(DateUtil.formatDate(sectionF.getApprovalDate()));
-                sectionFDTO.setDepartmentStamp(Base64.getEncoder().encodeToString(sectionF.getDepartmentStamp()).getBytes());
+                sectionFDTO.setDepartmentStamp(Base64.getEncoder().encodeToString(sectionF.getDepartmentStamp()));
                 reportDTO.setSectionF(sectionFDTO);
             }
-
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportDataConstant.APR_DATA_GET_SUCCESS.getBusinessCode()
+            );
             log.info("Completed fetching report with ID: {}", reportId);
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportDataConstant.APR_DATA_GET_SUCCESS.getBusinessMsg()),
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportDataConstant.APR_DATA_GET_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), reportDTO,
                     String.valueOf(AnnualProgramReportDataConstant.APR_DATA_GET_SUCCESS.getHttpStatus().value()), null,
@@ -461,8 +470,11 @@ public class AnnualProgramReportDataService {
             sectionFRepository.deleteByReportId(reportId);
             sectionBRepository.deleteByReportId(reportId);
 
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getBusinessCode()
+            );
             log.info("Completed deleting report data with ID: {}", reportId);
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getBusinessMsg()),
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), null,
                     String.valueOf(AnnualProgramReportDataConstant.APR_DATA_DELETE_SUCCESS.getHttpStatus().value()), null,

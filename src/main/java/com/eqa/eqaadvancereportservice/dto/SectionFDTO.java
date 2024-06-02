@@ -8,7 +8,7 @@ public class SectionFDTO {
     private String councilCommitteeId;
     private Integer referenceNo;
     private String approvalDate;
-    private byte[] departmentStamp;
+    private String departmentStamp;
 
     // Getters and Setters
 }
