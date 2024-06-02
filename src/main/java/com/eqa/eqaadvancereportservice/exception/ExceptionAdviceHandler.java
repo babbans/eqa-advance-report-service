@@ -41,7 +41,7 @@ public class ExceptionAdviceHandler {
 			statusCode = exception.getSettingConstant().getHttpStatus().value();
 			businessMsg = exception.getSettingConstant().getBusinessMsg(messageSource);
 			httpStatus = exception.getSettingConstant().getHttpStatus();
-			STATUS = exception.getTaskConstant().getHttpStatus().name();
+			STATUS = exception.getSettingConstant().getHttpStatus().name();
 		} else if (Objects.nonNull(exception.getTaskConstant())) {
 			errorMsgList.add(exception.getTaskConstant().getBusinessMsg(messageSource));
 			statusCode = exception.getTaskConstant().getHttpStatus().value();
