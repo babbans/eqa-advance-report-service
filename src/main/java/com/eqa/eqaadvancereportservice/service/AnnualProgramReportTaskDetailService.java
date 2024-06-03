@@ -1,5 +1,6 @@
 package com.eqa.eqaadvancereportservice.service;
 
+import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportDataConstant;
 import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportTaskConstant;
 import com.eqa.eqaadvancereportservice.dto.AnnualProgramReportTaskDetailDTO;
 import com.eqa.eqaadvancereportservice.dto.ResponseObject;
@@ -10,6 +11,7 @@ import com.eqa.eqaadvancereportservice.exception.UnauthorizedException;
 import com.eqa.eqaadvancereportservice.repository.AnnualProgramReportTaskDetailRepository;
 import com.eqa.eqaadvancereportservice.repository.ReportMasterRepository;
 import com.eqa.eqaadvancereportservice.util.CommonUtils;
+import com.eqa.eqaadvancereportservice.util.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +35,18 @@ public class AnnualProgramReportTaskDetailService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private MessageUtil messageUtil;
+
     public ResponseEntity<ResponseObject> findAll() throws CustomException {
         try {
             List<AnnualProgramReportTaskDetail> taskDetails = taskDetailRepository.findAll();
             log.info("AnnualProgramReportTaskDetail fetched successfully from DB");
             List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(taskDetails);
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getBusinessMsg()),
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getBusinessCode()
+            );
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_LIST_SUCCESS.getHttpStatus().value()), null,
@@ -94,7 +102,10 @@ public class AnnualProgramReportTaskDetailService {
             log.info("AnnualProgramReportTaskDetail saved/updated successfully");
 
             List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(savedTaskDetails);
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getBusinessMsg()),
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getBusinessCode()
+            );
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().value()), null,
@@ -113,7 +124,10 @@ public class AnnualProgramReportTaskDetailService {
             modelMapper.map(taskDetail, existingTaskDetail);
             AnnualProgramReportTaskDetail updatedTaskDetail = taskDetailRepository.save(existingTaskDetail);
             log.info("Report TaskDetail updated successfully");
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_UPDATE_SUCCESS.getBusinessMsg()),
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportTaskConstant.APR_TASK_UPDATE_SUCCESS.getBusinessCode()
+            );
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportTaskConstant.APR_TASK_UPDATE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), updatedTaskDetail,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_UPDATE_SUCCESS.getHttpStatus().value()), null,
@@ -130,14 +144,17 @@ public class AnnualProgramReportTaskDetailService {
     public ResponseEntity<ResponseObject> findById(Long id) throws CustomException {
         AnnualProgramReportTaskDetail existingReportTaskDetail = getExistingTaskDetail(id);
         try {
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getBusinessMsg()),
-                    AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().getReasonPhrase(),
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getBusinessCode()
+            );
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
+                    AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), existingReportTaskDetail,
-                    String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus().value()), null,
-                    new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_CREATE_SUCCESS.getHttpStatus());
+                    String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus().value()), null,
+                    new HttpHeaders(), AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus());
         } catch (Exception ex) {
             log.error("Error while fetching AnnualProgramReportTaskDetail {}", ex.getMessage());
-            throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_NOT_FOUND);
+            throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_GET_FAILED);
         }
     }
 
@@ -145,7 +162,10 @@ public class AnnualProgramReportTaskDetailService {
         try {
             taskDetailRepository.deleteWithIds(ids);
             log.info("AnnualProgramReportTaskDetail deleted with ids {}", ids);
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_DELETE_SUCCESS.getBusinessMsg()),
+            String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportTaskConstant.APR_TASK_DELETE_SUCCESS.getBusinessCode()
+            );
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportTaskConstant.APR_TASK_DELETE_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), null,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_DELETE_SUCCESS.getHttpStatus().value()), null,
@@ -164,8 +184,10 @@ public class AnnualProgramReportTaskDetailService {
             if (taskDetails.isEmpty()) {
                 throw new CustomException(AnnualProgramReportTaskConstant.APR_TASK_NOT_FOUND);
             }
-            List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(taskDetails);
-            return CommonUtils.buildResponseEntity(Arrays.asList(AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getBusinessMsg()),
+            List<AnnualProgramReportTaskDetailDTO> groupedTasks = groupTask(taskDetails);String localizedMessage = messageUtil.getLocalizedMessage(
+                    AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getBusinessCode()
+            );
+            return CommonUtils.buildResponseEntity(Arrays.asList(localizedMessage),
                     AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus().getReasonPhrase(),
                     String.valueOf(Math.round(Math.random() * 100)), groupedTasks,
                     String.valueOf(AnnualProgramReportTaskConstant.APR_TASK_GET_SUCCESS.getHttpStatus().value()), null,

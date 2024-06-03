@@ -4,6 +4,8 @@ import com.eqa.eqaadvancereportservice.constants.AnnualProgramReportSettingConst
 import com.eqa.eqaadvancereportservice.dto.AnnualprogramReportErrorResponse;
 import com.eqa.eqaadvancereportservice.util.CommonUtils;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +28,8 @@ import java.util.Objects;
 public class ExceptionAdviceHandler {
 
 	private static String STATUS = "Failed";
-
+	@Autowired
+	private MessageSource messageSource;
 	@ExceptionHandler({ CustomException.class })
 	public ResponseEntity<?> handleDirectoryException(CustomException exception) {
 		List<String> errorMsgList = new ArrayList<>();
@@ -34,20 +37,21 @@ public class ExceptionAdviceHandler {
 		String businessMsg = "";
 		HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		if (Objects.nonNull(exception.getSettingConstant())) {
-			errorMsgList.add(exception.getSettingConstant().getBusinessMsg());
+			errorMsgList.add(exception.getSettingConstant().getBusinessMsg(messageSource));
 			statusCode = exception.getSettingConstant().getHttpStatus().value();
-			businessMsg = exception.getSettingConstant().getBusinessMsg();
+			businessMsg = exception.getSettingConstant().getBusinessMsg(messageSource);
 			httpStatus = exception.getSettingConstant().getHttpStatus();
+			STATUS = exception.getSettingConstant().getHttpStatus().name();
 		} else if (Objects.nonNull(exception.getTaskConstant())) {
-			errorMsgList.add(exception.getTaskConstant().getBusinessMsg());
+			errorMsgList.add(exception.getTaskConstant().getBusinessMsg(messageSource));
 			statusCode = exception.getTaskConstant().getHttpStatus().value();
-			businessMsg = exception.getTaskConstant().getBusinessMsg();
+			businessMsg = exception.getTaskConstant().getBusinessMsg(messageSource);
 			httpStatus = exception.getTaskConstant().getHttpStatus();
 			STATUS = exception.getTaskConstant().getHttpStatus().name();
 		}  else if (Objects.nonNull(exception.getDataConstant())) {
-			errorMsgList.add(exception.getDataConstant().getBusinessMsg());
+			errorMsgList.add(exception.getDataConstant().getBusinessMsg(messageSource));
 			statusCode = exception.getDataConstant().getHttpStatus().value();
-			businessMsg = exception.getDataConstant().getBusinessMsg();
+			businessMsg = exception.getDataConstant().getBusinessMsg(messageSource);
 			httpStatus = exception.getDataConstant().getHttpStatus();
 			STATUS = exception.getDataConstant().getHttpStatus().name();
 		}
@@ -99,7 +103,7 @@ public class ExceptionAdviceHandler {
 				String.valueOf(AnnualProgramReportSettingConstant.APR_SETTING_BAD_REQUEST_ERROR.getHttpStatus().getReasonPhrase()),
 				String.valueOf(Math.round(Math.random() * 100)), null,
 				AnnualProgramReportSettingConstant.APR_SETTING_BAD_REQUEST_ERROR.getHttpStatus().value() + "",
-				AnnualProgramReportSettingConstant.APR_SETTING_BAD_REQUEST_ERROR.getBusinessMsg(), new HttpHeaders(),
+				AnnualProgramReportSettingConstant.APR_SETTING_BAD_REQUEST_ERROR.getBusinessMsg(messageSource), new HttpHeaders(),
 				AnnualProgramReportSettingConstant.APR_SETTING_BAD_REQUEST_ERROR.getHttpStatus());
 	}
 
